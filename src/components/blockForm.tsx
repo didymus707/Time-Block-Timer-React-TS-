@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Add } from "./primitives/icons";
+import { Add, Delete, Edit } from "./primitives/icons";
 import type { Block, Task } from "../types";
 import TaskForm from "./taskform";
+import { MdDelete } from "react-icons/md";
 
 interface BlockFormProps {
   addBlock: (newBlock: Block) => void;
@@ -20,6 +21,12 @@ export const BlockForm: React.FC<BlockFormProps> = ({
   const [sessionMinutes, setSessionMinutes] = useState<string | undefined>(
     undefined
   );
+
+  const removeTasks = (id: string) => {
+    console.log(id);
+    if (!setTasks) return;
+    setTasks((prevTasks) => prevTasks.filter((taks) => taks.id !== id));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,7 +80,7 @@ export const BlockForm: React.FC<BlockFormProps> = ({
                     value={sessionName}
                     onChange={(e) => setSessionName(e.target.value)}
                     placeholder="e.g., Morning Study Block, Evening Rroutine"
-                    className="bg-gray-100 rounded-md p-2 mt-2 focus:border-4 focus:border-gray-300 focus:outline-gray-300"
+                    className="bg-gray-100 rounded-lg p-2 mt-2 focus:border-4 focus:border-gray-300 focus:outline-gray-300"
                   />
                 </div>
               </div>
@@ -87,7 +94,7 @@ export const BlockForm: React.FC<BlockFormProps> = ({
                     type="number"
                     value={sessionHours}
                     id="total-session-duration"
-                    className="bg-gray-100 rounded-md p-2 mt-2 focus:border-4 focus:border-gray-300 focus:outline-gray-300"
+                    className="bg-gray-100 rounded-lg p-2 mt-2 focus:border-4 focus:border-gray-300 focus:outline-gray-300"
                     placeholder="2"
                     onChange={(e) => setSessionHours(e.target.value || "")}
                   />
@@ -100,7 +107,7 @@ export const BlockForm: React.FC<BlockFormProps> = ({
                     min="0"
                     max="59"
                     value={sessionMinutes}
-                    className="bg-gray-100 rounded-md p-2 mt-2 focus:border-4 focus:border-gray-300 focus:outline-gray-300"
+                    className="bg-gray-100 rounded-lg p-2 mt-2 focus:border-4 focus:border-gray-300 focus:outline-gray-300"
                     placeholder="0"
                     onChange={(e) => setSessionMinutes(e.target.value || "")}
                   />
@@ -137,12 +144,34 @@ export const BlockForm: React.FC<BlockFormProps> = ({
                   {showTask && <TaskForm setTasks={setTasks} />}
                 </div>
 
-                <div className="tasklist-wrapper">
+                <div className="tasklist-wrapper my-6">
                   {tasks.length > 0 && (
                     <>
-                      <ul className="tasklist">
+                      <ul className="tasklist grid gap-4">
                         {tasks.map((task) => (
-                          <li key={task.id}>{task.name}</li>
+                          <div
+                            key={task.id}
+                            className="flex items-center p-3 bg-gray-100 rounded-lg"
+                          >
+                            <li className="" key={task.id}>
+                              {task.name}
+                            </li>
+                            <div className="task-icons ml-auto">
+                              <Edit
+                                classNames={["inline-block mx-2 "]}
+                                onClick={() => {
+                                  console.log("Im editing");
+                                }}
+                              />
+                              <Delete
+                                label="delete task"
+                                classNames={[
+                                  "inline-block mx-2  hover:text-red-600",
+                                ]}
+                                onClick={() => removeTasks(task.id)}
+                              />
+                            </div>
+                          </div>
                         ))}
                       </ul>
                     </>
