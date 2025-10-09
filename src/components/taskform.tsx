@@ -59,7 +59,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ setTasks }) => {
                   type="button"
                   onClick={handleSubmit}
                   disabled={!taskValue || !taskDuration}
-                  className="basis-[15%] border-1 border-gray-200 rounded-lg p-2 mt-2 cursor-pointer disabled:cursor-not-allowed"
+                  className="basis-[15%] border-1 border-gray-200 rounded-lg p-2 mt-2 cursor-pointer disabled:cursor-not-allowed hover:bg-gray-200 hover:text-black hover:font-medium"
                 >
                   Add
                 </button>
