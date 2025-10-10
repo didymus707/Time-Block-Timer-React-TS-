@@ -22,8 +22,15 @@ export const BlockForm: React.FC<BlockFormProps> = ({
     undefined
   );
 
+  const editTasks = (id: string) => {
+    if (!setTasks) return;
+    // Logic to edit tasks
+    setTasks(prevTasks => prevTasks.map(task => 
+      task.id === id ? { ...task, name: task.name + " (edited)" } : task
+    ));
+  }
+
   const removeTasks = (id: string) => {
-    console.log(id);
     if (!setTasks) return;
     setTasks((prevTasks) => prevTasks.filter((taks) => taks.id !== id));
   };
@@ -154,11 +161,16 @@ export const BlockForm: React.FC<BlockFormProps> = ({
                             className="flex items-center p-3 bg-gray-100 rounded-lg"
                           >
                             <li className="" key={task.id}>
-                              {task.name}
+                              {task.name}{" "}
+                              <span className="text-sm text-gray-500">
+                                ({task.duration} mins)
+                              </span>
                             </li>
                             <div className="task-icons ml-auto">
                               <Edit
-                                classNames={["inline-block mx-2 "]}
+                                classNames={[
+                                  "inline-block mx-2 hover:text-blue-600",
+                                ]}
                                 onClick={() => {
                                   console.log("Im editing");
                                 }}
