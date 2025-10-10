@@ -1,14 +1,12 @@
+import { BlockList } from "./components/BlockList";
 import { Add } from "./components/primitives/icons";
-import TaskForm from "./components/taskform";
 
 function App() {
   return (
     <>
-      <div className="app-container w-full h-full flex flex-col gap-4 p-4 font-sans border-indigo-500">
-        <div className="header flex flex-col justify-center text-center font-sans border-indigo-500">
-          <h1 className="my-4 text-3xl font-bold border-rose-500">
-            Time Block Manager
-          </h1>
+      <div className="app-container w-full h-full flex flex-col gap-4 p-4 font-sans">
+        <div className="header flex flex-col justify-center text-center">
+          <h1 className="my-4 text-3xl font-bold">Time Block Manager</h1>
           <p className="subtitle text-xl antialiased text-[#717182]">
             Create a focused time blocks with sequential tasks to maximize your
             productivity
@@ -33,6 +31,7 @@ function App() {
             </span>
 
             <div
+              role="button"
               className="flex bg-black p-3 rounded-lg mt-2 align-center justify-center w-[14%] mx-auto"
               onClick={() => {}}
             >
@@ -42,7 +41,7 @@ function App() {
               </p>
             </div>
           </div>
-          <TaskForm />
+          <BlockList />
         </div>
       </div>
     </>

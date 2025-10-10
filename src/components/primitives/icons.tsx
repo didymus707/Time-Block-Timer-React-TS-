@@ -1,18 +1,46 @@
 import { FaPlus } from "react-icons/fa6";
+import { LuClock4 } from "react-icons/lu";
+import { FaRegEdit } from "react-icons/fa";
+import { MdDelete } from "react-icons/md";
 
 type IconProps = {
-  size: string;
-  color: string;
+  size?: string;
+  color?: string;
   onClick?: () => void;
-  classNames: string[];
+  classNames?: string[];
+  label?: string;
 };
 
-export const Add = (props: IconProps) => {
-  const { classNames, size, color } = props;
+const createIcon = (IconComponent: React.ComponentType<IconProps>) => {
+  return ({
+    classNames = [],
+    size = "1.2em",
+    color = "currentColor",
+    onClick,
+    label,
+  }: IconProps) => {
+    const Wrapper = onClick ? "button" : "span";
+    const combinedClass = [
+      ...classNames,
+      onClick
+        ? "cursor-pointer hover:opacity-80 active:scale-95 transition"
+        : "",
+    ].join(" ");
 
-  return (
-    <div className={classNames.join(" ")}>
-      <FaPlus size={size} color={color} />
-    </div>
-  );
+    return (
+      <Wrapper
+        onClick={onClick}
+        type={onClick ? "button" : undefined}
+        className={combinedClass}
+        aria-label={label}
+      >
+        <IconComponent size={size} color={color} />
+      </Wrapper>
+    );
+  };
 };
+
+export const Add = createIcon(FaPlus);
+export const Clock = createIcon(LuClock4);
+export const Edit = createIcon(FaRegEdit);
+export const Delete = createIcon(MdDelete);

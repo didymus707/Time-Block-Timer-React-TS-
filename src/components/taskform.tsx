@@ -1,136 +1,71 @@
 import { useState } from "react";
-import { v4 as uuidv4 } from "uuid";
+import type { Task } from "../types";
 
-type Task = {
-  id: string;
-  name: string;
-  duration: number;
-  completed: boolean;
-};
-
-interface Block {
-  id: string;
-  name: string;
-  duration: number;
-  tasks: Task[];
-  complteted: boolean;
+interface TaskFormProps {
+  setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
 }
 
-const TaskForm = () => {
-  const [tasks, setTasks] = useState<Task[]>([]);
+const TaskForm: React.FC<TaskFormProps> = ({ setTasks }) => {
   const [taskValue, setTaskValue] = useState("");
-  const [taskDuration, setTaskDuration] = useState<number | undefined>(
+  const [taskDuration, setTaskDuration] = useState<string | undefined>(
     undefined
   );
-  const [sessionValue, setSessionValue] = useState("");
 
-  // const handleSubmit = (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   onAddTask({
-  //     id: uuidv4(),
-  //     name: sessionValue,
-  //   });
-  // };
-
-  const addTasks = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (
-      taskValue.trim() === "" ||
-      taskDuration === undefined ||
-      taskDuration <= 0
-    )
-      return;
+    if (!taskValue.trim() || !taskDuration || Number(taskDuration) <= 0) return;
 
     const newTask: Task = {
-      id: uuidv4(),
+      id: crypto.randomUUID(),
+      blockId: "",
       name: taskValue,
-      duration: taskDuration,
+      duration: Number(taskDuration),
       completed: false,
     };
-    setTasks([...tasks, newTask]);
-    console.log(tasks);
+    setTasks((prevTasks) => [...prevTasks, newTask]);
+    setTaskValue("");
+    setTaskDuration("");
   };
 
   return (
     <>
-      <div className="time-block-card">
-        <div className="time-block-header">
-          <h3>Create Time Block Session</h3>
-        </div>
-
-        <div className="form-container">
-          <form className="task-form">
-            <div className="form-head">
-              <label htmlFor="session-name">Session Name</label>
-              <input
-                type="text"
-                id="session-name"
-                value={sessionValue}
-                onChange={(e) => setSessionValue(e.target.value)}
-              />
-            </div>
-
-            <div className="duration-wrapper flex space-between">
-              <div className="hours">
-                <label htmlFor="total-session-duration">Total Hours</label>
-                <input
-                  type="number"
-                  id="total-session-duration"
-                  min="0"
-                  max="23"
-                />
-              </div>
-              <div className="minutes">
-                <label htmlFor="total-session-minutes">Total Minutes</label>
-                <input
-                  type="number"
-                  id="total-session-minutes"
-                  min="0"
-                  max="59"
-                />
-              </div>
-            </div>
-
+      <div className="task-card">
+        <div className="task-card-container">
+          <div className="task-form">
             <div className="session-tasks-wrapper">
-              <p className="session-tasks">Add Tasks to your Session</p>
-              <div className="flex">
+              <p className="session-tasks my-4 text-lg font-medium">
+                Add Tasks to your Session
+              </p>
+              <div className="flex justify-between w-full gap-4">
                 <input
+                  id="task-name"
                   type="text"
                   value={taskValue}
-                  placeholder="Task name( e.g Read Percy Jackson)"
+                  className="bg-gray-100 rounded-lg p-2 mt-2 basis-[65%] focus:border-4 focus:border-gray-300 focus:outline-gray-300"
                   onChange={(e) => setTaskValue(e.target.value)}
+                  placeholder="Task name( e.g Read Percy Jackson)"
                 />
                 <input
                   min={0}
                   type="number"
                   id="task-in-minutes"
+                  placeholder="Minutes"
                   name="task-in-minutes"
                   value={taskDuration ?? ""}
-                  placeholder="Minutes"
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setTaskDuration(
-                      val === "" ? undefined : Number(e.target.value)
-                    );
-                  }}
+                  className="bg-gray-100 rounded-lg p-2 mt-2 basis-[15%] focus:border-4 focus:border-gray-300 focus:outline-gray-300"
+                  onChange={(e) => setTaskDuration(e.target.value || "")}
                 />
-                <button onClick={addTasks}>Add</button>
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  disabled={!taskValue || !taskDuration}
+                  className="basis-[15%] border-1 border-gray-200 rounded-lg p-2 mt-2 cursor-pointer disabled:cursor-not-allowed hover:bg-gray-200 hover:text-black hover:font-medium"
+                >
+                  Add
+                </button>
               </div>
             </div>
-          </form>
-        </div>
-
-        <div className="task-list">
-          {tasks.map((task) => (
-            <div className="task-item flex space-between" key={task.id}>
-              <span>{task.name}</span>
-              <span>{task.duration} mins</span>
-            </div>
-          ))}
-        </div>
-
-        <div className="start-session">
-          <button className="start-session-btn">Start Session</button>
+          </div>
         </div>
       </div>
     </>
