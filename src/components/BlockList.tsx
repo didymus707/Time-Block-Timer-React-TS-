@@ -19,8 +19,6 @@ export const BlockList = () => {
   //   );
   // };
 
-  console.log(blocks);
-
   return (
     <>
       <div className="block-list-container">
