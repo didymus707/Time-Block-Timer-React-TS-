@@ -22,15 +22,21 @@ export const BlockForm: React.FC<BlockFormProps> = ({
   );
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
 
-  const editTasks = (id: string) => {
-    if (!setTasks) return;
-    // Logic to edit tasks
+  const handleEditChange = (
+    id: string,
+    field: keyof Task,
+    value: string | number
+  ) => {
     setTasks((prevTasks) =>
       prevTasks.map((task) =>
-        task.id === id ? { ...task, name: task.name + " (edited)" } : task
+        task.id === id ? { ...task, [field]: value } : task
       )
     );
   };
+
+  const handleSaveEdit = (id: string) => {
+    setEditingTaskId(null);
+  }
 
   const removeTasks = (id: string) => {
     if (!setTasks) return;
@@ -162,28 +168,70 @@ export const BlockForm: React.FC<BlockFormProps> = ({
                             key={task.id}
                             className="flex items-center p-3 bg-gray-100 rounded-lg"
                           >
-                            <li className="" key={task.id}>
-                              {task.name}{" "}
-                              <span className="text-sm text-gray-500">
-                                ({task.duration} mins)
-                              </span>
-                            </li>
-                            <div className="task-icons ml-auto">
-                              <Edit
-                                classNames={[
-                                  "inline-block mx-2 hover:text-blue-600",
-                                ]}
-                                onClick={() => setEditingTaskId(task.id)}
-                              />
-                              <Delete
-                                label="delete task"
-                                classNames={[
-                                  "inline-block mx-2  hover:text-red-600",
-                                ]}
-                                onClick={() => removeTasks(task.id)}
-                              />
-                              {}
-                            </div>
+                            {editingTaskId === task.id ? (
+                              <>
+                                <input
+                                  type="text"
+                                  value={task.name}
+                                  onChange={(e) =>
+                                    handleEditChange(
+                                      task.id,
+                                      "name",
+                                      e.target.value
+                                    )
+                                  }
+                                  className="bg-white border p-1 rounded"
+                                />
+                                <input
+                                  type="number"
+                                  value={task.duration}
+                                  onChange={(e) =>
+                                    handleEditChange(
+                                      task.id,
+                                      "duration",
+                                      e.target.value
+                                    )
+                                  }
+                                  className="bg-white border p-1 rounded w-20 ml-2"
+                                />
+                                <button
+                                  onClick={() => handleSaveEdit(task.id)}
+                                  className="ml-2 text-blue-600"
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  onClick={() => setEditingTaskId(null)}
+                                  className="ml-2 text-gray-400"
+                                >
+                                  Cancel
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <li className="" key={task.id}>
+                                  {task.name}{" "}
+                                  <span className="text-sm text-gray-500">
+                                    ({task.duration} mins)
+                                  </span>
+                                </li>
+                                <div className="task-icons ml-auto">
+                                  <Edit
+                                    classNames={[
+                                      "inline-block mx-2 hover:text-blue-600",
+                                    ]}
+                                    onClick={() => setEditingTaskId(task.id)}
+                                  />
+                                  <Delete
+                                    label="delete task"
+                                    classNames={[
+                                      "inline-block mx-2  hover:text-red-600",
+                                    ]}
+                                    onClick={() => removeTasks(task.id)}
+                                  />
+                                </div>
+                              </>
+                            )}
                           </div>
                         ))}
                       </ul>
