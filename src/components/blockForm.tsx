@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Add, Delete, Edit } from "./primitives/icons";
 import type { Block, Task } from "../types";
 import TaskForm from "./taskform";
-import { MdDelete } from "react-icons/md";
 
 interface BlockFormProps {
   addBlock: (newBlock: Block) => void;
@@ -21,14 +20,17 @@ export const BlockForm: React.FC<BlockFormProps> = ({
   const [sessionMinutes, setSessionMinutes] = useState<string | undefined>(
     undefined
   );
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
 
   const editTasks = (id: string) => {
     if (!setTasks) return;
     // Logic to edit tasks
-    setTasks(prevTasks => prevTasks.map(task => 
-      task.id === id ? { ...task, name: task.name + " (edited)" } : task
-    ));
-  }
+    setTasks((prevTasks) =>
+      prevTasks.map((task) =>
+        task.id === id ? { ...task, name: task.name + " (edited)" } : task
+      )
+    );
+  };
 
   const removeTasks = (id: string) => {
     if (!setTasks) return;
@@ -171,9 +173,7 @@ export const BlockForm: React.FC<BlockFormProps> = ({
                                 classNames={[
                                   "inline-block mx-2 hover:text-blue-600",
                                 ]}
-                                onClick={() => {
-                                  console.log("Im editing");
-                                }}
+                                onClick={() => setEditingTaskId(task.id)}
                               />
                               <Delete
                                 label="delete task"
@@ -182,6 +182,7 @@ export const BlockForm: React.FC<BlockFormProps> = ({
                                 ]}
                                 onClick={() => removeTasks(task.id)}
                               />
+                              {}
                             </div>
                           </div>
                         ))}
