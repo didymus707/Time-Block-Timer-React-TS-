@@ -6,7 +6,7 @@ interface TaskFormProps {
 }
 
 const TaskForm: React.FC<TaskFormProps> = ({ setTasks }) => {
-  const [taskValue, setTaskValue] = useState("");
+  const [taskValue, setTaskValue] = useState<string>("");
   const [taskDuration, setTaskDuration] = useState<string | undefined>(
     undefined
   );
