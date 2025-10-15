@@ -51,7 +51,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ setTasks }) => {
                   type="number"
                   id="task-in-minutes"
                   placeholder="Minutes"
-                  setValue={setTaskValue}
+                  setValue={setTaskDuration}
                   classNames={[`basis-[15%]`]}
                   inputValue={taskDuration ?? ""}
                 />

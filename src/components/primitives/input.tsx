@@ -1,11 +1,12 @@
 import React from "react";
+import { twMerge } from "tailwind-merge";
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   inputValue: string;
   inputNameRef?: string;
   classNames?: string[];
-  setValue: React.Dispatch<React.SetStateAction<string>>;
+  setValue: (value: string) => void;
 }
 
 export const Input: React.FC<InputProps> = ({
@@ -19,7 +20,7 @@ export const Input: React.FC<InputProps> = ({
   const defaultClasses = [
     "bg-gray-100 rounded-lg p-2 mt-2 focus:border-4 focus:border-gray-300 focus:outline-gray-300",
   ];
-  const combinedClass = [...classNames, ...defaultClasses].join(" ");
+  const combinedClass = twMerge([...defaultClasses, ...classNames].join(" "));
   return (
     <>
       {label && (

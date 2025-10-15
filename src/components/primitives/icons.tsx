@@ -1,7 +1,9 @@
 import { FaPlus } from "react-icons/fa6";
 import { LuClock4 } from "react-icons/lu";
 import { FaRegEdit } from "react-icons/fa";
+import { FaCheck } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
+import { MdOutlineCancel } from "react-icons/md";
 
 type IconProps = {
   size?: string;
@@ -44,3 +46,5 @@ export const Add = createIcon(FaPlus);
 export const Clock = createIcon(LuClock4);
 export const Edit = createIcon(FaRegEdit);
 export const Delete = createIcon(MdDelete);
+export const Check = createIcon(FaCheck);
+export const Cancel = createIcon(MdOutlineCancel);

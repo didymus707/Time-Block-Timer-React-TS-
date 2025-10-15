@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Add, Delete, Edit } from "./primitives/icons";
+import { Add, Cancel, Check, Delete, Edit } from "./primitives/icons";
 import type { Block, Task } from "../types";
 import TaskForm from "./taskform";
+import { Input } from "./primitives/input";
 
 interface BlockFormProps {
   addBlock: (newBlock: Block) => void;
@@ -36,7 +37,7 @@ export const BlockForm: React.FC<BlockFormProps> = ({
 
   const handleSaveEdit = (id: string) => {
     setEditingTaskId(null);
-  }
+  };
 
   const removeTasks = (id: string) => {
     if (!setTasks) return;
@@ -170,42 +171,54 @@ export const BlockForm: React.FC<BlockFormProps> = ({
                           >
                             {editingTaskId === task.id ? (
                               <>
-                                <input
-                                  type="text"
-                                  value={task.name}
-                                  onChange={(e) =>
-                                    handleEditChange(
-                                      task.id,
-                                      "name",
-                                      e.target.value
-                                    )
-                                  }
-                                  className="bg-white border p-1 rounded"
-                                />
-                                <input
-                                  type="number"
-                                  value={task.duration}
-                                  onChange={(e) =>
-                                    handleEditChange(
-                                      task.id,
-                                      "duration",
-                                      e.target.value
-                                    )
-                                  }
-                                  className="bg-white border p-1 rounded w-20 ml-2"
-                                />
-                                <button
-                                  onClick={() => handleSaveEdit(task.id)}
-                                  className="ml-2 text-blue-600"
-                                >
-                                  Save
-                                </button>
-                                <button
-                                  onClick={() => setEditingTaskId(null)}
-                                  className="ml-2 text-gray-400"
-                                >
-                                  Cancel
-                                </button>
+                                <div className="flex justify-between w-full gap-4">
+                                  <Input
+                                    type="text"
+                                    id="task"
+                                    inputValue={task.name}
+                                    setValue={(newValue) => {
+                                      handleEditChange(
+                                        task.id,
+                                        "name",
+                                        newValue
+                                      );
+                                    }}
+                                    classNames={[
+                                      `basis-[65%] mt-0 bg-white border py-1`,
+                                    ]}
+                                  />
+                                  <Input
+                                    type="number"
+                                    id="task-in-minutes"
+                                    inputValue={task.duration.toString()}
+                                    setValue={(newValue) => {
+                                      handleEditChange(
+                                        task.id,
+                                        "duration",
+                                        newValue
+                                      );
+                                    }}
+                                    classNames={[
+                                      `basis-[15%] mt-0 bg-white border py-1`,
+                                    ]}
+                                  />
+                                  <div className="edit-icons basis-[14%] flex justify-between items-center">
+                                    <Check
+                                      size="1.4em"
+                                      classNames={[
+                                        "inline-block mx-2 hover:text-green-600 cursor-pointer",
+                                      ]}
+                                      onClick={() => handleSaveEdit(task.id)}
+                                    />
+                                    <Cancel
+                                      size="1.8em"
+                                      classNames={[
+                                        "inline-block mx-2 hover:text-red-600 cursor-pointer",
+                                      ]}
+                                      onClick={() => setEditingTaskId(null)}
+                                    />
+                                  </div>
+                                </div>
                               </>
                             ) : (
                               <>
