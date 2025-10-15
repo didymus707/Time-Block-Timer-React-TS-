@@ -22,6 +22,13 @@ export const BlockForm: React.FC<BlockFormProps> = ({
     undefined
   );
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const totalDuration =
+    (Number(sessionHours)! * 60 || 0) + (Number(sessionMinutes) || 0);
+  const totalTaskDuration = tasks.reduce(
+    (acc, task) => acc + Number(task.duration),
+    0
+  );
+  const remainingTime = totalDuration - totalTaskDuration;
 
   const handleEditChange = (
     id: string,
@@ -35,7 +42,7 @@ export const BlockForm: React.FC<BlockFormProps> = ({
     );
   };
 
-  const handleSaveEdit = (id: string) => {
+  const handleSaveEdit = () => {
     setEditingTaskId(null);
   };
 
@@ -52,8 +59,6 @@ export const BlockForm: React.FC<BlockFormProps> = ({
 
     const tasksWithBlockId = tasks.map((task) => ({ ...task, id: blockId }));
 
-    const totalDuration =
-      Number(sessionHours)! * 60 + (Number(sessionMinutes) || 0);
     const newBlock: Block = {
       id: blockId,
       name: sessionName || "Untitled Block",
@@ -71,6 +76,16 @@ export const BlockForm: React.FC<BlockFormProps> = ({
     setShowTask(false);
     setSessionEnded(false);
   };
+
+  {
+    console.log("totalDuration", totalDuration);
+  }
+  {
+    console.log("totalTaskDuration", totalTaskDuration);
+  }
+  {
+    console.log("remainingTime", remainingTime);
+  }
 
   return (
     <>
@@ -208,7 +223,7 @@ export const BlockForm: React.FC<BlockFormProps> = ({
                                       classNames={[
                                         "inline-block mx-2 hover:text-green-600 cursor-pointer",
                                       ]}
-                                      onClick={() => handleSaveEdit(task.id)}
+                                      onClick={() => handleSaveEdit()}
                                     />
                                     <Cancel
                                       size="1.8em"
@@ -252,6 +267,40 @@ export const BlockForm: React.FC<BlockFormProps> = ({
                   )}
                 </div>
               </div>
+
+              {tasks.length > 0 && (
+                <div className="tasks-summary bg-gray-200 p-4 rounded-lg">
+                  <>
+                    <div className="flex justify-between">
+                      <div className="task-total-remainder font-medium text-lg">
+                        <p>
+                          Task Total:{" "}
+                          <span className="text-gray-500">
+                            {totalTaskDuration}m
+                          </span>
+                        </p>
+                        {totalDuration > 0 && (
+                          <p className="text-gray-500">
+                            {totalTaskDuration === totalDuration
+                              ? "Perfect fit!"
+                              : remainingTime}
+                          </p>
+                        )}
+                      </div>
+                      <p className="font-medium text-lg">
+                        Session Total:{" "}
+                        {sessionHours || sessionMinutes ? (
+                          <span className="text-gray-500">
+                            {totalDuration}m
+                          </span>
+                        ) : (
+                          <span className="text-gray-500">0m</span>
+                        )}
+                      </p>
+                    </div>
+                  </>
+                </div>
+              )}
 
               <div className="create-session-container mt-8">
                 <div className="create-session-container w-full">
