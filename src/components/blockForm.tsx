@@ -77,16 +77,6 @@ export const BlockForm: React.FC<BlockFormProps> = ({
     setSessionEnded(false);
   };
 
-  {
-    console.log("totalDuration", totalDuration);
-  }
-  {
-    console.log("totalTaskDuration", totalTaskDuration);
-  }
-  {
-    console.log("remainingTime", remainingTime);
-  }
-
   return (
     <>
       <div className="block-form-container">
@@ -111,7 +101,7 @@ export const BlockForm: React.FC<BlockFormProps> = ({
                     value={sessionName}
                     onChange={(e) => setSessionName(e.target.value)}
                     placeholder="e.g., Morning Study Block, Evening Rroutine"
-                    className="bg-gray-100 rounded-lg p-2 mt-2 focus:border-4 focus:border-gray-300 focus:outline-gray-300"
+                    className="bg-gray-100 rounded-lg p-2 mt-2 focus:bg-gray-100 focus:border-4 focus:border-gray-300 focus:outline-gray-300 "
                   />
                 </div>
               </div>
@@ -269,10 +259,10 @@ export const BlockForm: React.FC<BlockFormProps> = ({
               </div>
 
               {tasks.length > 0 && (
-                <div className="tasks-summary bg-gray-200 p-4 rounded-lg">
+                <div className="tasks-summary bg-gray-100 p-4 rounded-lg tracking-wide">
                   <>
                     <div className="flex justify-between">
-                      <div className="task-total-remainder font-medium text-lg">
+                      <div className="task-total-remainder font-medium">
                         <p>
                           Task Total:{" "}
                           <span className="text-gray-500">
@@ -280,14 +270,14 @@ export const BlockForm: React.FC<BlockFormProps> = ({
                           </span>
                         </p>
                         {totalDuration > 0 && (
-                          <p className="text-gray-500">
+                          <p className="text-gray-500 mt-1">
                             {totalTaskDuration === totalDuration
                               ? "Perfect fit!"
-                              : remainingTime}
+                              : `${remainingTime} m remaining`}
                           </p>
                         )}
                       </div>
-                      <p className="font-medium text-lg">
+                      <p className="font-medium">
                         Session Total:{" "}
                         {sessionHours || sessionMinutes ? (
                           <span className="text-gray-500">
