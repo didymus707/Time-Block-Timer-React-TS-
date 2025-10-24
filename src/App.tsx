@@ -15,9 +15,12 @@ function App() {
 
         <div className="main-content w-full">
           <div className="flex text-center justify-center mx-auto my-6">
-            <div className="flex bg-black p-3 rounded-lg" onClick={() => {}}>
-              <Add size="1.4em" color={"white"} classNames={["mr-4"]} />
-              <p className="text-md text-white pr-2">Create Time Block</p>
+            <div
+              className="flex bg-black px-4 py-2 rounded-lg items-center justify-between"
+              onClick={() => {}}
+            >
+              <Add color={"white"} classNames={["mr-4"]} />
+              <p className="text-md text-white">Create Time Block</p>
             </div>
           </div>
 
@@ -32,10 +35,10 @@ function App() {
 
             <div
               role="button"
-              className="flex bg-black p-3 rounded-lg mt-2 align-center justify-center w-[14%] mx-auto"
+              className="flex items-center bg-black px-4 py-2 rounded-lg mt-2 mx-auto"
               onClick={() => {}}
             >
-              <Add size="1.4em" color={"white"} classNames={["mr-4"]} />
+              <Add color={"white"} classNames={["mr-4"]} />
               <p className="text-md text-white pr-2">
                 Create Your First Time Block
               </p>
