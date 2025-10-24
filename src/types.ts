@@ -1,8 +1,9 @@
 export interface Block {
   id: string;
   name: string;
-  duration: number;
   tasks: Task[];
+  duration: number;
+  progress: number;
   completed: boolean;
 }
 
