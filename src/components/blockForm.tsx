@@ -138,7 +138,7 @@ export const BlockForm: React.FC<BlockFormProps> = ({
               <div className="tasks-choice-container flex justify-between items-center">
                 <div className="task-setup">
                   <p className="text-md text-lg font-medium">Task Setup</p>
-                  <span className="text-sm text-gray-500">Add tasks later</span>
+                  <span className="text-sm text-gray-500">{showTask ? 'Add tasks now' : "Add tasks later"}</span>
                 </div>
 
                 <div className="toggle-switch w-[23%] flex justify-between items-center text-md">
