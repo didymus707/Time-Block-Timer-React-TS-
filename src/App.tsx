@@ -1,5 +1,5 @@
-import { BlockList } from "./components/BlockList";
 import { Add } from "./components/primitives/icons";
+import { Home } from "./pages/home";
 
 function App() {
   return (
@@ -44,7 +44,7 @@ function App() {
               </p>
             </div>
           </div>
-          <BlockList />
+          <Home />
         </div>
       </div>
     </>

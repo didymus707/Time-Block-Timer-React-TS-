@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Block } from "../types";
 import { BlockForm } from "../components/blockForm";
+import { BlockCard } from "../components/blockCard";
 
 export const Home = () => {
   const [blocks, setBlocks] = useState<Block[]>([]);
@@ -9,13 +10,13 @@ export const Home = () => {
   const handleAddBlock = (newBlock: Block) => {
     setBlocks((prevBlocks) => [...prevBlocks, newBlock]);
     setIsModalOpen(false);
-  }
+  };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gray-900 text-white p-6">
       <header className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold tracking-tight">
-          Time Block Manager
+          Blokr
         </h1>
         <button
           onClick={() => setIsModalOpen(true)}
@@ -47,7 +48,10 @@ export const Home = () => {
 
       {/* Modal */}
       {isModalOpen && (
-        <BlockForm onClose={() => setIsModalOpen(false)} onSubmit={handleAddBlock} />
+        <BlockForm
+          onClose={() => setIsModalOpen(false)}
+          onSubmit={handleAddBlock}
+        />
       )}
     </div>
   );
