@@ -23,7 +23,7 @@ export const Card = ({
       {/* Header section */}
       <div className="flex items-center gap-2 mb-3">
         {icon && <div className="text-blue-400 text-xl">{icon}</div>}
-        <h2 className="text-lg font-semibold text-white">{title}</h2>
+        {title && <h2 className="text-lg font-semibold text-white">{title}</h2>}
       </div>
 
       {/* Content */}
@@ -31,3 +31,4 @@ export const Card = ({
     </div>
   );
 };
+// Example: 4-hour study block with reading (20min), guitar practice (30min), coding challenges (1hr), and project work (90min)
