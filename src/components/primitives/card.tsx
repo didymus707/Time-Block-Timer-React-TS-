@@ -23,7 +23,7 @@ export const Card = ({
       {/* Header section */}
       <div className="flex items-center gap-2 mb-3">
         {icon && <div className="text-blue-400 text-xl">{icon}</div>}
-        {title && <h2 className="text-lg font-semibold text-white">{title}</h2>}
+        {title && <h2 className="text-lg font-semibold text-black">{title}</h2>}
       </div>
 
       {/* Content */}
