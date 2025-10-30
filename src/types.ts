@@ -1,3 +1,5 @@
+export type Status = "idle" | "running" | "paused" | "completed";
+
 export interface Block {
   id: string;
   name: string;
@@ -5,6 +7,7 @@ export interface Block {
   duration: number;
   progress: number;
   completed: boolean;
+  status: Status;
 }
 
 export interface Task {
