@@ -3,9 +3,10 @@ import type { ReactNode } from "react";
 interface CardProps {
   title?: string;
   icon?: ReactNode;
-  children?: ReactNode;
-  onClick?: () => void;
   className?: string;
+  onClick?: () => void;
+  children?: ReactNode;
+  headerRight?: ReactNode;
 }
 
 export const Card = ({
@@ -13,6 +14,7 @@ export const Card = ({
   icon,
   children,
   onClick,
+  headerRight,
   className = "",
 }: CardProps) => {
   return (
@@ -21,9 +23,14 @@ export const Card = ({
       className={`bg-gray-800 rounded-xl p-4 shadow-md hover:shadow-lg transition-all hover:scale-[1.02] cursor-pointer ${className}`}
     >
       {/* Header section */}
-      <div className="flex items-center gap-2 mb-3">
-        {icon && <div className="text-blue-400 text-xl">{icon}</div>}
-        {title && <h2 className="text-lg font-semibold text-black">{title}</h2>}
+      <div className="flex justify-between items-center mb-3">
+        <div className="flex items-center gap-2 mb-3">
+          {icon && <div className="text-blue-400 text-xl">{icon}</div>}
+          {title && (
+            <h2 className="text-lg font-semibold text-black">{title}</h2>
+          )}
+        </div>
+        {headerRight && <div>{headerRight}</div>}
       </div>
 
       {/* Content */}
