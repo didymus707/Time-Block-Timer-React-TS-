@@ -1,8 +1,10 @@
 import { FaPlus } from "react-icons/fa6";
-import { LuClock4 } from "react-icons/lu";
-import { FaRegEdit } from "react-icons/fa";
 import { FaCheck } from "react-icons/fa";
+import { FaPlay } from "react-icons/fa";
+import { LuClock4 } from "react-icons/lu";
 import { MdDelete } from "react-icons/md";
+import { FaRegEdit } from "react-icons/fa";
+import { FaPause } from "react-icons/fa6";
 import { GoTasklist } from "react-icons/go";
 import { MdOutlineCancel } from "react-icons/md";
 
@@ -44,7 +46,9 @@ const createIcon = (IconComponent: React.ComponentType<IconProps>) => {
 };
 
 export const Add = createIcon(FaPlus);
+export const Play = createIcon(FaPlay);
 export const Check = createIcon(FaCheck);
+export const Pause = createIcon(FaPause);
 export const Clock = createIcon(LuClock4);
 export const Edit = createIcon(FaRegEdit);
 export const Delete = createIcon(MdDelete);
