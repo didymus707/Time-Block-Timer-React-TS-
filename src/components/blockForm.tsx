@@ -69,6 +69,7 @@ export const BlockForm: React.FC<BlockFormProps> = ({
       tasks: tasksWithBlockId,
       completed: sessionEnded,
       progress: 0,
+      status: "idle",
     };
 
     addBlock(newBlock);
@@ -303,7 +304,12 @@ export const BlockForm: React.FC<BlockFormProps> = ({
                 >
                   Create Session
                 </button>
-                <button onClick={closeForm} className="w-[23%] border border-gray-300 rounded-lg p-2 hover:bg-gray-100">Cancel</button>
+                <button
+                  onClick={closeForm}
+                  className="w-[23%] border border-gray-300 rounded-lg p-2 hover:bg-gray-100"
+                >
+                  Cancel
+                </button>
               </div>
             </div>
           </form>
