@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Block } from "../types";
+import type { Block, Status } from "../types";
 import { BlockForm } from "../components/blockForm";
 import { BlockCard } from "../components/blockCard";
 import { Add } from "../components/primitives/icons";
@@ -7,6 +7,7 @@ import { Add } from "../components/primitives/icons";
 export const Home = () => {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
 
   const handleAddingBlock = (newBlock: Block) => {
     setBlocks((prevBlocks) => [...prevBlocks, newBlock]);
