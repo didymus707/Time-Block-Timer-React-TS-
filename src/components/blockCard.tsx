@@ -2,6 +2,7 @@ import { useNavigate } from "react-router";
 import type { Block } from "../types";
 import { Card } from "./primitives/card";
 import { Clock, Task } from "./primitives/icons";
+import { useBlock } from "../context/blockContext";
 
 interface BlockCardProps {
   block: Block;
@@ -9,17 +10,15 @@ interface BlockCardProps {
 
 export const BlockCard = ({ block }: BlockCardProps) => {
   const navigate = useNavigate();
+  const { dispatch } = useBlock();
 
   const handleCardClick = () => {
     navigate(`/block/${block.id}`);
   };
 
   const toggleBlockStatus = (blockId: string) => {
-    // Logic to toggle block status between 'running' and 'paused'
-    // This is a placeholder; actual implementation would depend on state management
-    console.log(`Toggling status for block with ID: ${blockId}`);
+    dispatch({ type: "TOGGLE_STATUS", payload: { id: blockId } });
   };
-
 
   return (
     <div>
