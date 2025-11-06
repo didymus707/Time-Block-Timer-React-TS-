@@ -6,6 +6,7 @@ import { createRoot } from "react-dom/client";
 import { CardDetails } from "./pages/blockCardDetail.tsx";
 import { BlockProvider } from "./context/blockContextPRovider.tsx";
 
+
 const root = document.getElementById("root")!;
 
 createRoot(root).render(
