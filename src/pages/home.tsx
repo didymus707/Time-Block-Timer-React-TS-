@@ -1,16 +1,16 @@
 import { useState } from "react";
-import type { Block, Status } from "../types";
+import type { Block } from "../types";
 import { BlockForm } from "../components/blockForm";
 import { BlockCard } from "../components/blockCard";
 import { Add } from "../components/primitives/icons";
+import { useBlock } from "../context/blockContext";
 
 export const Home = () => {
-  const [blocks, setBlocks] = useState<Block[]>([]);
+  const { blocks, dispatch } = useBlock();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-
   const handleAddingBlock = (newBlock: Block) => {
-    setBlocks((prevBlocks) => [...prevBlocks, newBlock]);
+    dispatch({ type: "ADD_BLOCK", payload: newBlock });
     setIsModalOpen(false);
   };
 
@@ -56,7 +56,9 @@ export const Home = () => {
           </div>
         )}
 
-        {isModalOpen && <BlockForm addBlock={handleAddingBlock} closeForm={closeForm} />}
+        {isModalOpen && (
+          <BlockForm addBlock={handleAddingBlock} closeForm={closeForm} />
+        )}
       </div>
     </>
   );
