@@ -18,18 +18,7 @@ export const Home = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-gray-900 text-white p-6">
-        <header className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold tracking-tight">Blokr</h1>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition"
-          >
-            <Add size="1.2em" classNames={["mr-4"]} />
-            Add Block
-          </button>
-        </header>
-
+      <div className="p-6 bg-gray-50 text-gray-800">
         {/* blocklist */}
         {blocks.length === 0 ? (
           <div className="text-center mt-32 text-gray-400">
@@ -43,7 +32,7 @@ export const Home = () => {
             </p>
             <button
               onClick={() => setIsModalOpen(true)}
-              className="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white"
+              className="mt-4 px-4 py-2 bg-black hover:bg-gray-800 rounded-lg text-white"
             >
               Create Block
             </button>
