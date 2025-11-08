@@ -4,8 +4,6 @@ import { useBlock } from "../context/blockContext";
 export const CardDetails = () => {
   const { blocks } = useBlock()
   const { id } = useParams<{ id: string }>();
-  
-  console.log("first", "rendering CardDetails with id:", id);
 
   const block = blocks.find((b) => b.id === id);
 
