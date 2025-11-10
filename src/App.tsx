@@ -4,10 +4,8 @@ import { Add } from "./components/primitives/icons";
 function App() {
   return (
     <>
-      {/* <Home />
-      <Outlet /> */}
+
       <div className="min-h-screen bg-gray-50 text-gray-800">
-        {/* <div className="min-h-screen bg-gray-50 text-gray-800"> */}
         {/* Shared layout — header/nav visible on all pages */}
         <header className="flex justify-between items-center mb-8 p-4 shadow-sm bg-white">
           <h1 className="text-2xl font-bold tracking-tight">Blokr</h1>
