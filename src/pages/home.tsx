@@ -1,9 +1,8 @@
 import { useState } from "react";
 import type { Block } from "../types";
+import { useBlock } from "../context/blockContext";
 import { BlockForm } from "../components/blockForm";
 import { BlockCard } from "../components/blockCard";
-import { Add } from "../components/primitives/icons";
-import { useBlock } from "../context/blockContext";
 
 export const Home = () => {
   const { blocks, dispatch } = useBlock();
