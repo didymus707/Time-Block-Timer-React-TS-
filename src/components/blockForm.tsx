@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { Add, Cancel, Check, Delete, Edit } from "./primitives/icons";
-import type { Block, Task } from "../types";
 import TaskForm from "./taskform";
+import React, { useState } from "react";
 import { Input } from "./primitives/input";
+import type { Block, Task } from "../types";
+import { Add, Cancel, Check, Delete, Edit } from "./primitives/icons";
 
 interface BlockFormProps {
   addBlock: (newBlock: Block) => void;
@@ -14,7 +14,7 @@ export const BlockForm: React.FC<BlockFormProps> = ({
   closeForm,
 }: BlockFormProps) => {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [showTask, setShowTask] = useState<boolean>(false);
+  const [showTask, setShowTask] = useState<boolean>(true);
   const [sessionEnded, setSessionEnded] = useState<boolean>(false);
   const [sessionName, setSessionName] = useState<string | undefined>("");
   const [sessionHours, setSessionHours] = useState<string | undefined>(
