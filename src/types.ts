@@ -29,3 +29,9 @@ export interface BlockContextType {
   blocks: Block[];
   dispatch: React.Dispatch<Action>;
 }
+
+export interface BlockUIContextType {
+  isModalOpen: boolean;
+  openModal: () => void;
+  closeModal: () => void;
+}
