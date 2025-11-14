@@ -10,6 +10,7 @@ function App() {
 
   const handleAddingBlock = (newBlock: Block) => {
       dispatch({ type: "ADD_BLOCK", payload: newBlock });
+      closeModal();
     };
 
   return (

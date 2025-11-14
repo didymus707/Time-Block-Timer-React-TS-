@@ -1,19 +1,9 @@
-import { useState } from "react";
-import type { Block } from "../types";
-import { useBlock } from "../context/blockContext";
-import { BlockForm } from "../components/blockForm";
 import { BlockCard } from "../components/blockCard";
+import { useBlock, useBlockUI } from "../context/blockContext";
 
 export const Home = () => {
-  const { blocks, dispatch } = useBlock();
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-
-  const handleAddingBlock = (newBlock: Block) => {
-    dispatch({ type: "ADD_BLOCK", payload: newBlock });
-    setIsModalOpen(false);
-  };
-
-  const closeForm = () => setIsModalOpen(false);
+  const { blocks } = useBlock();
+  const { openModal } = useBlockUI();
 
   return (
     <>
@@ -30,7 +20,7 @@ export const Home = () => {
               (30min), coding challenges (1hr), and project work (90min)
             </p>
             <button
-              onClick={() => setIsModalOpen(true)}
+              onClick={openModal}
               className="mt-4 px-4 py-2 bg-black hover:bg-gray-800 rounded-lg text-white"
             >
               Create Block
@@ -42,10 +32,6 @@ export const Home = () => {
               <BlockCard key={block.id} block={block} />
             ))}
           </div>
-        )}
-
-        {isModalOpen && (
-          <BlockForm addBlock={handleAddingBlock} closeForm={closeForm} />
         )}
       </div>
     </>
