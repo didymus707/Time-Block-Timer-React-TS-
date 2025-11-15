@@ -5,8 +5,10 @@ import { Home } from "./pages/home.tsx";
 import { createRoot } from "react-dom/client";
 import { CardDetails } from "./pages/blockCardDetail.tsx";
 import { BrowserRouter, Route, Routes } from "react-router";
-import { BlockProvider } from "./context/blockContextPRovider.tsx";
-
+import {
+  BlockProvider,
+  BlockUIProvider,
+} from "./context/blockContextProvider.tsx";
 
 const root = document.getElementById("root")!;
 
@@ -14,12 +16,14 @@ createRoot(root).render(
   <StrictMode>
     <BrowserRouter>
       <BlockProvider>
-        <Routes>
-          <Route path="/" element={<App />}>
-            <Route index element={<Home />} />
-            <Route path="block/:id" element={<CardDetails />} />
-          </Route>
-        </Routes>
+        <BlockUIProvider>
+          <Routes>
+            <Route path="/" element={<App />}>
+              <Route index element={<Home />} />
+              <Route path="block/:id" element={<CardDetails />} />
+            </Route>
+          </Routes>
+        </BlockUIProvider>
       </BlockProvider>
     </BrowserRouter>
   </StrictMode>
