@@ -1,17 +1,17 @@
+import type { Block } from "./types";
 import { Outlet } from "react-router";
+import { BlockForm } from "./components/blockForm";
 import { Add } from "./components/primitives/icons";
 import { useBlock, useBlockUI } from "./context/blockContext";
-import { BlockForm } from "./components/blockForm";
-import type { Block } from "./types";
 
 function App() {
-  const {  dispatch } = useBlock();
+  const { dispatch } = useBlock();
   const { isModalOpen, openModal, closeModal } = useBlockUI();
 
   const handleAddingBlock = (newBlock: Block) => {
-      dispatch({ type: "ADD_BLOCK", payload: newBlock });
-      closeModal();
-    };
+    dispatch({ type: "ADD_BLOCK", payload: newBlock });
+    closeModal();
+  };
 
   return (
     <>
