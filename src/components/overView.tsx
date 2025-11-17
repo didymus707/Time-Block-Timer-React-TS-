@@ -19,10 +19,11 @@ export const Overview = () => {
   return (
     <>
       <Card
-        className="bg-transparent mb-8 p-6 border border-gray-200 shadow-none "
+        className="bg-transparent mb-8 px-6 py-8 border border-gray-200 shadow-none "
         title="Sessions Overview"
         icon={<Clock color="black" classNames={["mr-2"]} />}
       >
+        {/*  TASKS GRID  */}
         <div className="space-y-8">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <StatBox
@@ -53,6 +54,27 @@ export const Overview = () => {
             {/*   */}
           </div>
         </div>
+
+        {/*  PROGRESS BAR  */}
+        <div className="mt-8">
+          <div className="flex justify-between items-center">
+            <p className="font-medium text-gray-700 mb-2">Time Progress</p>
+            <span className="text-sm text-gray-500">0%</span>
+          </div>
+
+          {/* Placeholder for now */}
+          <div className="w-full h-2 bg-gray-200 rounded-full my-2">
+            <div
+              className="h-full bg-black rounded-full transition-all"
+              style={{ width: "0%" }}
+            />
+          </div>
+
+          <div className="text-sm text-gray-500 flex justify-between">
+            <span>Elapsed: 0m</span>
+            <span>Planned: 0m</span>
+          </div>
+        </div>
       </Card>
     </>
   );
@@ -71,7 +93,7 @@ const StatBox = ({
     <div className="bg-gray-100 p-4 rounded-lg flex flex-col items-center justify-center space-y-1">
       <span className="text-2xl">{icon}</span>
       <span className="text-xl font-bold text-gray-900 py-2">{value}</span>
-      <span className="text-sm text-gray-600">{label}</span>
+      <span className="text-md text-gray-600">{label}</span>
     </div>
   );
 };
