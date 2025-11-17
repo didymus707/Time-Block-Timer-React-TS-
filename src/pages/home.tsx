@@ -1,4 +1,4 @@
-import { BlockCard } from "../components/blockCard";
+import { BlockCard } from "../components/blocks/blockCard";
 import { Overview } from "../components/overView";
 import { useBlock, useBlockUI } from "../context/blockContext";
 

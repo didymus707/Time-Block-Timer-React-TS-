@@ -1,8 +1,8 @@
-import type { Block } from "../types";
-import { Card } from "./primitives/card";
+import type { Block } from "../../types";
+import { Card } from "../primitives/card";
 import { useNavigate } from "react-router";
-import { Clock, Task } from "./primitives/icons";
-import { useBlock } from "../context/blockContext";
+import { Clock, Task } from "../primitives/icons";
+import { useBlock } from "../../context/blockContext";
 
 interface BlockCardProps {
   block: Block;

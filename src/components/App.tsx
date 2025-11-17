@@ -1,8 +1,8 @@
-import type { Block } from "./types";
+import type { Block } from "../types";
 import { Link, Outlet } from "react-router";
-import { BlockForm } from "./components/blockForm";
-import { Add } from "./components/primitives/icons";
-import { useBlock, useBlockUI } from "./context/blockContext";
+import { BlockForm } from "./blocks/blockForm";
+import { Add } from "./primitives/icons";
+import { useBlock, useBlockUI } from "../context/blockContext";
 
 function App() {
   const { dispatch } = useBlock();

@@ -1,8 +1,8 @@
-import TaskForm from "./taskform";
+import TaskForm from "../taskform";
 import React, { useState } from "react";
-import { Input } from "./primitives/input";
-import type { Block, Task } from "../types";
-import { Add, Cancel, Check, Delete, Edit } from "./primitives/icons";
+import { Input } from "../primitives/input";
+import type { Block, Task } from "../../types";
+import { Add, Cancel, Check, Delete, Edit } from "../primitives/icons";
 
 interface BlockFormProps {
   addBlock: (newBlock: Block) => void;
@@ -150,7 +150,7 @@ export const BlockForm: React.FC<BlockFormProps> = ({
                 </span>
               </div>
 
-              <div className="toggle-switch w-[23%] flex justify-between items-center text-md">
+              <div className="toggle-switch w-[25%] flex justify-between items-center text-md">
                 <label htmlFor="switch-tasks">Add later</label>
                 <input
                   type="checkbox"

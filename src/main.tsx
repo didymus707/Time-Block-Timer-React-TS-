@@ -1,5 +1,5 @@
 import "./index.css";
-import App from "./App.tsx";
+import App from "./components/App.tsx";
 import { StrictMode } from "react";
 import { Home } from "./pages/home.tsx";
 import { createRoot } from "react-dom/client";
