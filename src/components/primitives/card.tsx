@@ -20,12 +20,16 @@ export const Card = ({
   return (
     <div
       onClick={onClick}
-      className={`bg-gray-800 rounded-xl p-4 shadow-md hover:shadow-lg transition-all hover:scale-[1.02] cursor-pointer ${className}`}
+      className={`bg-gray-800 rounded-xl p-4  ${className}`}
     >
       {/* Header section */}
       <div className="flex justify-between items-center mb-3">
-        <div className="flex items-center gap-2 mb-3">
-          {icon && <div className="text-blue-400 text-xl">{icon}</div>}
+        <div className="flex items-center gap-2">
+          {icon && (
+            <div className="text-blue-400 text-xl flex items-center justify-center">
+              {icon}
+            </div>
+          )}
           {title && (
             <h2 className="text-lg font-semibold text-black">{title}</h2>
           )}

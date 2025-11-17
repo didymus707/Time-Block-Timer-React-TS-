@@ -1,12 +1,13 @@
 import { FaPlus } from "react-icons/fa6";
 import { FaCheck } from "react-icons/fa";
-import { FaPlay } from "react-icons/fa";
 import { LuClock4 } from "react-icons/lu";
 import { MdDelete } from "react-icons/md";
 import { FaRegEdit } from "react-icons/fa";
-import { FaPause } from "react-icons/fa6";
 import { GoTasklist } from "react-icons/go";
+import { HiOutlinePlay } from "react-icons/hi";
+import { HiOutlinePause } from "react-icons/hi";
 import { MdOutlineCancel } from "react-icons/md";
+import { LuCircleCheckBig } from "react-icons/lu";
 
 type IconProps = {
   size?: string;
@@ -46,11 +47,12 @@ const createIcon = (IconComponent: React.ComponentType<IconProps>) => {
 };
 
 export const Add = createIcon(FaPlus);
-export const Play = createIcon(FaPlay);
 export const Check = createIcon(FaCheck);
-export const Pause = createIcon(FaPause);
 export const Clock = createIcon(LuClock4);
 export const Edit = createIcon(FaRegEdit);
 export const Delete = createIcon(MdDelete);
 export const Task = createIcon(GoTasklist);
+export const Play = createIcon(HiOutlinePlay);
+export const Pause = createIcon(HiOutlinePause);
 export const Cancel = createIcon(MdOutlineCancel);
+export const CheckCircle = createIcon(LuCircleCheckBig);
