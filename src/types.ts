@@ -4,10 +4,11 @@ export interface Block {
   id: string;
   name: string;
   tasks: Task[];
+  status: Status;
   duration: number;
   progress: number;
+  createdAt: string
   completed: boolean;
-  status: Status;
 }
 
 export interface Task {
