@@ -1,8 +1,10 @@
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { useBlock } from "../context/blockContext";
 
 export const CardDetails = () => {
   const { blocks } = useBlock()
+  const navigate = useNavigate();
+  const goBack = () => navigate(-1);
   const { id } = useParams<{ id: string }>();
 
   const block = blocks.find((b) => b.id === id);
@@ -12,7 +14,13 @@ export const CardDetails = () => {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6 max-w-5xl mx-auto">
+      <button
+        onClick={goBack}
+        className="text-blue-600 hover:underline mb-4 flex items-center gap-1"
+      >
+        ← Back
+      </button>
       <h1 className="text-2xl font-semibold mb-2">{block.name}</h1>
       <p className="text-gray-500 mb-4">
         Duration: {block.duration} min | {block.tasks.length} tasks | Status:{" "}
