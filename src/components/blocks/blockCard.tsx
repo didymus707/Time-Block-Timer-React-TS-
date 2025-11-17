@@ -63,9 +63,9 @@ export const BlockCard = ({ block }: BlockCardProps) => {
             <span>{block.tasks.length} tasks</span>
           </div>
         </div>
-        <div className="mt-3 bg-gray-700 h-2 rounded-full">
+        <div className="mt-3 bg-gray-200 h-2 rounded-full">
           <div
-            className="h-2 bg-blue-500 rounded-full"
+            className="h-2 bg-black rounded-full"
             style={{ width: `${block.progress}%` }}
           />
         </div>
