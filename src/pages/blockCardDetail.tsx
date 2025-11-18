@@ -2,9 +2,10 @@ import { useNavigate, useParams } from "react-router";
 import { useBlock } from "../context/blockContext";
 import { Card } from "../components/primitives/card";
 import { Clock } from "../components/primitives/icons";
+import { TimeProgress } from "../components/blocks/timeProgress";
 
 export const CardDetails = () => {
-  const { blocks } = useBlock()
+  const { blocks } = useBlock();
   const navigate = useNavigate();
   const goBack = () => navigate(-1);
   const { id } = useParams<{ id: string }>();
@@ -53,29 +54,56 @@ export const CardDetails = () => {
         </div>
 
         {/* Current Task */}
-        
-      </Card>
-      <h1 className="text-2xl font-semibold mb-2">{block.name}</h1>
-      <p className="text-gray-500 mb-4">
-        Duration: {block.duration} min | {block.tasks.length} tasks | Status:{" "}
-        <span className="font-medium text-blue-600">{block.status}</span>
-      </p>
-      <div className="h-2 bg-gray-200 rounded-full mb-2">
-        <div
-          className="h-2 bg-blue-500 rounded-full"
-          style={{ width: `${block.progress}%` }}
-        />
-      </div>
-      <p className="text-sm text-gray-500 mb-4">{block.progress}% complete</p>
+        <div className="mt-8 border border-gray-200 rounded-lg p-4 bg-gray-50">
+          <div className="flex">
+            <h3 className="font-medium text-gray-700 mb-2">Current Task</h3>:
+            <span className="text-gray-600">No active task.</span>
+          </div>
 
-      <h2 className="font-semibold text-lg mb-2">Tasks</h2>
-      <ul className="list-disc list-inside text-gray-600">
-        {block.tasks.map((task) => (
-          <li key={task.id}>
-            {task.name} — {task.duration} min
-          </li>
-        ))}
-      </ul>
+          {/* <TimeProgress /> */}
+          <div className="mt-2">
+            <div className="flex justify-between items-center">
+              <p className="font-medium text-gray-700 mb-2">Time Progress</p>
+              <span className="text-sm text-gray-500">0%</span>
+            </div>
+
+            {/* Placeholder for now */}
+            <div className="w-full h-2 bg-gray-200 rounded-full my-2">
+              <div
+                className="h-full bg-black rounded-full transition-all"
+                style={{ width: "0%" }}
+              />
+            </div>
+
+            <div className="text-sm text-gray-500 flex justify-between">
+              <span>Elapsed: 0m</span>
+              <span>Planned: 0m</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Task Queue */}
+        <div className="task-queue">
+          <h3 className="font-medium text-gray-700 mb-2 mt-6">Task Queue</h3>
+          {block.tasks.length === 0 ? (
+            <>
+              <p className="text-gray-600">No tasks in the queue.</p>
+              
+            </>
+          ) : (
+            <ul className="space-y-2 text-gray-700">
+              {block.tasks.map((task) => (
+                <li
+                  key={task.id}
+                  className="border border-gray-200 p-2 rounded-lg bg-gray-100"
+                >
+                  {task.name} — {task.duration} min
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </Card>
     </div>
   );
 };
