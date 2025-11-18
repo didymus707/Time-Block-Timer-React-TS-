@@ -72,9 +72,17 @@ export const BlockCard = ({ block }: BlockCardProps) => {
         <p className="text-xs text-gray-400 mt-1">{block.progress}% complete</p>
 
         <ul className="text-sm text-gray-400 mt-2">
-          {block.tasks.slice(0, 3).map((t) => (
-            <li key={t.id}>• {t.name}</li>
+          {block.tasks.slice(0, 3).map((t, i) => (
+            <li key={t.id || i} className="truncate">
+              • {t.name}
+            </li>
           ))}
+          {block.tasks.length < 3 &&
+            Array.from({ length: 3 - block.tasks.length }).map((_, i) => (
+              <li key={`placeholder-${i}`} className="opacity-0">
+                •
+              </li>
+            ))}
           {block.tasks.length > 3 && <li>+{block.tasks.length - 3} more</li>}
         </ul>
       </Card>
