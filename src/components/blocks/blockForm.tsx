@@ -70,6 +70,7 @@ export const BlockForm: React.FC<BlockFormProps> = ({
       completed: sessionEnded,
       progress: 0,
       status: "idle",
+      createdAt: new Date().toISOString(),
     };
 
     addBlock(newBlock);
