@@ -1,15 +1,18 @@
 import type { Block } from "../types";
+import { Add } from "./primitives/icons";
 import { Link, Outlet } from "react-router";
 import { BlockForm } from "./blocks/blockForm";
-import { Add } from "./primitives/icons";
+import { ToastContainer, toast } from "react-toastify";
 import { useBlock, useBlockUI } from "../context/blockContext";
 
 function App() {
   const { dispatch } = useBlock();
+  const notify = () => toast("Block added!");
   const { isModalOpen, openModal, closeModal } = useBlockUI();
 
   const handleAddingBlock = (newBlock: Block) => {
     dispatch({ type: "ADD_BLOCK", payload: newBlock });
+    notify();
     closeModal();
   };
 
@@ -39,6 +42,7 @@ function App() {
         <main className="p-6">
           <Outlet />
         </main>
+        <ToastContainer position="top-right" autoClose={3000} />
       </div>
     </>
   );
