@@ -24,7 +24,8 @@ export type Action =
   | { type: "UPDATE_BLOCK"; payload: Block }
   | { type: "DELETE_BLOCK"; payload: Block }
   | { type: "TOGGLE_STATUS"; payload: { id: string } }
-  | { type: "UPDATE_PROGRESS"; payload: { id: string; progress: number } };
+  | { type: "UPDATE_PROGRESS"; payload: { id: string; progress: number } }
+  | { type: "ADD_TASK_TO_BLOCK"; payload: { blockId: string; task: Task } }
 
 export interface BlockContextType {
   blocks: Block[];

@@ -33,6 +33,13 @@ export const blockReducer = (state: Block[], action: Action): Block[] => {
       );
     case "DELETE_BLOCK":
       return state.filter((block: Block) => block.id !== action.payload.id);
+    case "ADD_TASK_TO_BLOCK":
+      return state.map((block: Block) =>
+        block.id === action.payload.blockId ? {
+          ...block,
+          tasks: [...block.tasks, action.payload.task],
+        } : block
+      );
 
     // case "STOP_BLOCK":
     //   return state.map((block: Block) =>

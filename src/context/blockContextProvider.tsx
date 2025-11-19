@@ -7,9 +7,9 @@ const initialState: Block[] = [];
 
 export const BlockProvider = ({ children }: { children: ReactNode }) => {
   const loadStoredData = (): Block[] => {
-    const storedBlocks = localStorage.getItem('blocks');
-    return storedBlocks ? JSON.parse(storedBlocks) as Block[] : [];
-  }
+    const storedBlocks = localStorage.getItem("blocks");
+    return storedBlocks ? (JSON.parse(storedBlocks) as Block[]) : [];
+  };
   const [blocks, dispatch] = useReducer(
     blockReducer,
     initialState,
@@ -17,8 +17,8 @@ export const BlockProvider = ({ children }: { children: ReactNode }) => {
   );
 
   useEffect(() => {
-      localStorage.setItem('blocks', JSON.stringify(blocks));
-    })
+    localStorage.setItem("blocks", JSON.stringify(blocks));
+  });
 
   return (
     <BlockContext.Provider value={{ blocks, dispatch } as BlockContextType}>
@@ -27,16 +27,21 @@ export const BlockProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export const BlockUIProvider = ({children}: {children: ReactNode}) => {
+export const BlockUIProvider = ({ children }: { children: ReactNode }) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
   return (
-    <BlockUIContext.Provider value={{isModalOpen, openModal, closeModal}}>
+    <BlockUIContext.Provider
+      value={{
+        isModalOpen,
+        openModal,
+        closeModal,
+      }}
+    >
       {children}
     </BlockUIContext.Provider>
   );
-}
-
+};

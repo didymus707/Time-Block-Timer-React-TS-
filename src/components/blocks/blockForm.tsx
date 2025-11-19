@@ -1,4 +1,4 @@
-import TaskForm from "../taskform";
+import TaskForm from "./taskform";
 import React, { useState } from "react";
 import { Input } from "../primitives/input";
 import type { Block, Task } from "../../types";
@@ -194,9 +194,7 @@ export const BlockForm: React.FC<BlockFormProps> = ({
                                   setValue={(newValue) => {
                                     handleEditChange(task.id, "name", newValue);
                                   }}
-                                  classNames={[
-                                    `basis-[65%] mt-0 bg-white border py-1`,
-                                  ]}
+                                  className={`basis-[65%] mt-0 bg-white border py-1`}
                                 />
                                 <Input
                                   type="number"
@@ -209,9 +207,7 @@ export const BlockForm: React.FC<BlockFormProps> = ({
                                       newValue
                                     );
                                   }}
-                                  classNames={[
-                                    `basis-[15%] mt-0 bg-white border py-1`,
-                                  ]}
+                                  className={`basis-[15%] mt-0 bg-white border py-1`}
                                 />
                                 <div className="edit-icons basis-[14%] flex justify-between items-center">
                                   <Check

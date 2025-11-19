@@ -1,6 +1,6 @@
 import { useState } from "react";
-import type { Task } from "../types";
-import { Input } from "./primitives/input";
+import type { Task } from "../../types";
+import { Input } from "../primitives/input";
 
 interface TaskFormProps {
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
@@ -43,8 +43,8 @@ const TaskForm: React.FC<TaskFormProps> = ({ setTasks }) => {
                   id="task"
                   inputValue={taskValue}
                   setValue={setTaskValue}
-                  classNames={[`basis-[65%]`]}
-                  placeholder="e.g., Morning Study Block, Evening Rroutine"
+                  className={`basis-[65%]`}
+                  placeholder="e.g.,Write report"
                 />
                 <Input
                   min={0}
@@ -52,7 +52,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ setTasks }) => {
                   id="task-in-minutes"
                   placeholder="Minutes"
                   setValue={setTaskDuration}
-                  classNames={[`basis-[15%]`]}
+                  className={`basis-15%`}
                   inputValue={taskDuration ?? ""}
                 />
                 <button

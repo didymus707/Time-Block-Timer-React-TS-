@@ -7,47 +7,50 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: ButtonSize;
   className?: string;
-  children?: React.ReactNode;
+  children: React.ReactNode;
 }
 
 /**
- * Simple Button primitive that works with Tailwind or plain classNames.
- * - variant: primary / secondary / ghost
- * - size: sm / md / lg
+ * Blokr Button — matches your handwritten style but works as a full design-system primitive.
  *
- * The component intentionally returns a semantic <button> and forwards native props.
+ * - primary: solid black (your handwritten "Create Session" button)
+ * - secondary: white with gray border (your handwritten "Cancel" button)
+ * - ghost: transparent (rare use)
  */
 export const Button: React.FC<ButtonProps> = ({
   variant = "primary",
   size = "md",
   className = "",
-  children,
   disabled,
+  children,
   ...rest
-}: ButtonProps) => {
-  const base = "inline-flex items-center justify-center font-medium rounded-md transition duration-[var(--blokr-motion-medium)]";
+}) => {
+  // Your handwritten button uses rounded-lg + p-2
+  const base =
+    "inline-flex items-center justify-center font-medium rounded-lg transition-all";
+
+  // Matches your handwritten padding exactly
   const sizeMap: Record<ButtonSize, string> = {
-    sm: "px-3 py-1.5 text-sm",
-    md: "px-4 py-2 text-md",
-    lg: "px-6 py-3 text-lg",
+    sm: "p-2 text-sm",
+    md: "p-2 text-md",
+    lg: "p-3 text-lg",
   };
 
+  // Matches your Create / Cancel button exactly
   const variantMap: Record<ButtonVariant, string> = {
-    primary: "bg-black text-white hover:opacity-90 disabled:opacity-60",
+    primary:
+      "bg-black text-white hover:bg-gray-900 disabled:bg-gray-300 disabled:text-white disabled:cursor-not-allowed",
+
     secondary:
-      "bg-neutral-100 text-[var(--blokr-text-primary)] hover:bg-neutral-200 disabled:opacity-60",
-    ghost: "bg-transparent text-[var(--blokr-text-primary)] hover:bg-neutral-100 disabled:opacity-60",
+      "border border-gray-300 bg-white text-gray-900 hover:bg-gray-100 disabled:opacity-60",
+
+    ghost: "bg-transparent text-gray-900 hover:bg-gray-100 disabled:opacity-60",
   };
 
-  const classes = [base, sizeMap[size], variantMap[variant], className].join(" ");
+  const classes = `${base} ${sizeMap[size]} ${variantMap[variant]} ${className}`;
 
   return (
-    <button
-      {...rest}
-      disabled={disabled}
-      className={classes}
-      aria-disabled={disabled}
-    >
+    <button {...rest} className={classes} disabled={disabled}>
       {children}
     </button>
   );

@@ -1,20 +1,35 @@
-import { useNavigate, useParams } from "react-router";
+import { useState } from "react";
 import { useBlock } from "../context/blockContext";
 import { Card } from "../components/primitives/card";
+import Button from "../components/primitives/button";
+import { useNavigate, useParams } from "react-router";
 import { Clock } from "../components/primitives/icons";
-import { TimeProgress } from "../components/blocks/timeProgress";
+import { TaskModal } from "../components/modals/task";
+// import { TimeProgress } from "../components/blocks/timeProgress";
 
 export const CardDetails = () => {
   const { blocks } = useBlock();
   const navigate = useNavigate();
   const goBack = () => navigate(-1);
   const { id } = useParams<{ id: string }>();
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
 
   const block = blocks.find((b) => b.id === id);
 
   if (!block) {
     return <div className="p-6 text-gray-600">Block not found.</div>;
   }
+
+  const openTaskModal = (id: string) => {
+    setSelectedBlockId(id);
+    setIsTaskModalOpen(true);
+  };
+
+  const closeTaskModal = () => {
+    setIsTaskModalOpen(false);
+    setSelectedBlockId(null);
+  };
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
@@ -88,7 +103,14 @@ export const CardDetails = () => {
           {block.tasks.length === 0 ? (
             <>
               <p className="text-gray-600">No tasks in the queue.</p>
-              
+              <Button
+                onClick={() => openTaskModal(block.id)}
+                size="sm"
+                variant="primary"
+                className="hover:cursor-pointer mt-4"
+              >
+                Add tasks
+              </Button>
             </>
           ) : (
             <ul className="space-y-2 text-gray-700">
@@ -104,6 +126,12 @@ export const CardDetails = () => {
           )}
         </div>
       </Card>
+
+      <TaskModal
+        blockId={selectedBlockId}
+        isOpen={isTaskModalOpen}
+        onClose={closeTaskModal}
+      />
     </div>
   );
 };
