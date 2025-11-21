@@ -1,7 +1,9 @@
-import { useBlock } from "../context/blockContext";
-import { Card } from "./primitives/card";
-import { CheckCircle, Clock, Pause, Play, Task } from "./primitives/icons";
 import type { ReactNode } from "react";
+import { Card } from "../primitives/card";
+import { useBlock } from "../../context/blockContext";
+import { CheckCircle, Clock, Pause, Play, Task } from "../primitives/icons";
+import { TimeProgress } from "./timeProgress";
+import { blockTimer } from "../hooks/blockTimer";
 
 export const Overview = () => {
   const { blocks } = useBlock();
@@ -15,6 +17,16 @@ export const Overview = () => {
     0
   );
   const totalTasks = blocks.reduce((acc, block) => acc + block.tasks.length, 0);
+
+  const totalPlanned = blocks.reduce(
+    (acc, b) => acc + blockTimer({ block: b }).planned,
+    0
+  );
+  const totalElapsed = blocks.reduce(
+    (acc, b) => acc + blockTimer({ block: b }).elapsed,
+    0
+  );
+  const progress = totalPlanned === 0 ? 0 : (totalElapsed / totalPlanned) * 100;
 
   return (
     <>
@@ -47,7 +59,7 @@ export const Overview = () => {
               icon={<Clock color="gray" />}
             />
             <StatBox
-              label="Total Sessions"
+              label="Tasks Done"
               icon={<Task color="purple" />}
               value={tasksCompleted + " / " + totalTasks}
             />
@@ -56,25 +68,13 @@ export const Overview = () => {
         </div>
 
         {/*  PROGRESS BAR  */}
-        <div className="mt-8">
-          <div className="flex justify-between items-center">
-            <p className="font-medium text-gray-700 mb-2">Time Progress</p>
-            <span className="text-sm text-gray-500">0%</span>
-          </div>
-
-          {/* Placeholder for now */}
-          <div className="w-full h-2 bg-gray-200 rounded-full my-2">
-            <div
-              className="h-full bg-black rounded-full transition-all"
-              style={{ width: "0%" }}
-            />
-          </div>
-
-          <div className="text-sm text-gray-500 flex justify-between">
-            <span>Elapsed: 0m</span>
-            <span>Planned: 0m</span>
-          </div>
-        </div>
+        <TimeProgress
+          label="Time Progress"
+          elapsed={totalElapsed}
+          planned={totalPlanned}
+          progress={progress}
+          variant="total"
+        />
       </Card>
     </>
   );
