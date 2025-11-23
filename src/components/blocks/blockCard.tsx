@@ -11,6 +11,10 @@ interface BlockCardProps {
 export const BlockCard = ({ block }: BlockCardProps) => {
   const navigate = useNavigate();
   const { dispatch } = useBlock();
+  console.log(
+    "TASK IDS:",
+    block.tasks.map((t) => t)
+  );
 
   const handleCardClick = () => {
     navigate(`/block/${block.id}`);

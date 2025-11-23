@@ -1,41 +1,43 @@
+import { formatHM, formatMmSs } from "../../logic";
+
 interface TimeProgressProps {
   label: string;
   elapsed: number;
   planned: number;
   remaining?: number;
+  progress: number;
   variant?: "session" | "task" | "total";
 }
 
 export const TimeProgress = ({
   elapsed,
-  planned,
   remaining,
+  planned,
+  progress,
   label = "Time Progress",
   variant = "total",
 }: TimeProgressProps) => {
-  const progress = planned > 0 ? Math.min((elapsed / planned) * 100, 100) : 0;
-
   return (
     <div className="mt-8">
       <div className="flex justify-between items-center">
         <p className="font-medium text-gray-700 mb-2">{label}</p>
-        <span className="text-sm text-gray-500">{progress}%</span>
+        <span className="text-sm text-gray-500">{Math.round(progress)}%</span>
       </div>
 
       {/* Placeholder for now */}
       <div className="w-full h-2 bg-gray-200 rounded-full my-2">
         <div
           className="h-full bg-black rounded-full transition-all"
-          style={{ width: "0%" }}
+          style={{ width: `${progress}%` }}
         />
       </div>
 
       <div className="text-sm text-gray-500 flex justify-between">
-        <span>Elapsed: 0m</span>
-        {variant !== "total" && <span>{remaining}</span>}
-        {variant === "total" && <span>Planned</span>}
-        {variant === "session" && <span>Total: 0</span>}
-        {variant === "task" && <span>Duration: </span>}
+        <span>Elapsed: {formatMmSs(elapsed)}</span>
+        {variant !== "total" && remaining !== undefined && (
+          <span>Remaining: {formatMmSs(remaining)}</span>
+        )}
+        <span>Planned: {formatHM(planned / 60)}</span>
       </div>
     </div>
   );

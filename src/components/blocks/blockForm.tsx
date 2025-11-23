@@ -69,6 +69,8 @@ export const BlockForm: React.FC<BlockFormProps> = ({
       tasks: tasksWithBlockId,
       completed: sessionEnded,
       progress: 0,
+      elapsed: 0,
+      remaining: totalDuration * 60,
       status: "idle",
       createdAt: new Date().toISOString(),
     };

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Task } from "../../types";
 import { Input } from "../primitives/input";
+import { v4 as uuidv4 } from "uuid";
 
 interface TaskFormProps {
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
@@ -20,8 +21,11 @@ const TaskForm: React.FC<TaskFormProps> = ({ setTasks }) => {
       id: crypto.randomUUID(),
       blockId: "",
       name: taskValue,
-      duration: Number(taskDuration),
       completed: false,
+      elapsed: 0,
+      progress: 0,
+      duration: Number(taskDuration),
+      remaining: Number(taskDuration),
     };
     setTasks((prevTasks) => [...prevTasks, newTask]);
     setTaskValue("");
