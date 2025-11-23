@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { useBlock } from "../../context/blockContext";
-import { Input } from "../primitives/input";
 import Button from "../primitives/button";
+import { Input } from "../primitives/input";
+import { useBlock } from "../../context/blockContext";
+import { ToastContainer, toast } from "react-toastify";
 
 interface TaskModalProps {
   blockId: string | null;
@@ -12,6 +13,7 @@ interface TaskModalProps {
 export const TaskModal = ({ blockId, isOpen, onClose }: TaskModalProps) => {
   const { dispatch } = useBlock();
   const [name, setName] = useState("");
+  const notify = () => toast("Block added!");
   const [duration, setDuration] = useState("");
 
   if (!isOpen || !blockId) return null;
@@ -27,12 +29,16 @@ export const TaskModal = ({ blockId, isOpen, onClose }: TaskModalProps) => {
           id: crypto.randomUUID(),
           blockId,
           name,
-          duration: Number(duration),
+          elapsed: 0,
+          progress: 0,
           completed: false,
+          duration: Number(duration),
+          remaining: Number(duration) * 60,
         },
       },
     });
 
+    notify();
     setName("");
     setDuration("");
 
@@ -44,13 +50,13 @@ export const TaskModal = ({ blockId, isOpen, onClose }: TaskModalProps) => {
         <h2 className="text-xl font-semibold mb-4">Add Task</h2>
 
         <div className="space-y-4">
-          <div className="flex justify-between gap-2 w-full">
+          <div className="flex justify-between w-full gap-4">
             <Input
               type="text"
               placeholder="Task name"
               inputValue={name}
               setValue={setName}
-              className={'w-[70%]'}
+              className="grow-3 border border-blue-500"
             />
 
             <Input
@@ -58,20 +64,29 @@ export const TaskModal = ({ blockId, isOpen, onClose }: TaskModalProps) => {
               placeholder="Minutes"
               inputValue={duration}
               setValue={setDuration}
-              className={'w-[25%]'}
+              className="grow border border-blue-500"
             />
           </div>
 
           <div className="flex justify-end gap-3 mt-4">
-            <Button className="px-4" variant="secondary" onClick={onClose}>
+            <Button
+              className="px-4 text-sm"
+              variant="secondary"
+              onClick={onClose}
+            >
               Cancel
             </Button>
-            <Button className="px-4" variant="primary" onClick={handleSubmit}>
+            <Button
+              className="px-4 text-sm"
+              variant="primary"
+              onClick={handleSubmit}
+            >
               Add Task
             </Button>
           </div>
         </div>
       </div>
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };
