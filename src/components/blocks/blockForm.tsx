@@ -60,7 +60,7 @@ export const BlockForm: React.FC<BlockFormProps> = ({
 
     const blockId = crypto.randomUUID();
 
-    const tasksWithBlockId = tasks.map((task) => ({ ...task, id: blockId }));
+    const tasksWithBlockId = tasks.map((task) => ({ ...task, blockId }));
 
     const newBlock: Block = {
       id: blockId,
