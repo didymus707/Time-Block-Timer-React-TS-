@@ -1,7 +1,6 @@
 import { useState } from "react";
 import type { Task } from "../../types";
 import { Input } from "../primitives/input";
-import { v4 as uuidv4 } from "uuid";
 
 interface TaskFormProps {
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
