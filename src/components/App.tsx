@@ -22,7 +22,7 @@ function App() {
         <header className="flex justify-between items-center mb-8 p-4 shadow-sm bg-white">
           <h1 className="text-2xl font-bold tracking-tight">
             <Link to="/" className="hover:opacity-80 transition">
-              Blokr
+              BlocTi
             </Link>
           </h1>
           <button
