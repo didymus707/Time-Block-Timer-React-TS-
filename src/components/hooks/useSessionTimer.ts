@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import type { Block, Task } from "../../types";
 import { useBlock } from "../../context/blockContext";
 
@@ -21,32 +21,35 @@ export const useSessionTimer = ({
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // For Session Timer logic
-  const sessionElapsed = block.tasks.reduce(
-    (acc, task) => acc + task.elapsed,
-    0
-  );
-  const sessionRemaining = block.tasks.reduce(
-    (acc, task) => acc + task.remaining,
-    0
-  );
-  const sessionPlanned = block.tasks.reduce(
-    (acc, task) => acc + task.duration,
-    0
-  );
-  const sessionProgress =
-    sessionPlanned === 0 ? 0 : (sessionElapsed / sessionPlanned) * 100;
+  const sessionElapsed = useMemo(() => {
+    return block.tasks.reduce((acc, task) => acc + task.elapsed, 0);
+  }, [block.tasks]);
+
+  const sessionRemaining = useMemo(() => {
+    return block.tasks.reduce((acc, task) => acc + task.remaining, 0);
+  }, [block.tasks]);
+
+  const sessionPlanned = useMemo(() => {
+    return block.tasks.reduce((acc, task) => acc + task.duration * 60, 0);
+  }, [block.tasks]);
 
   // for App Timer logic
-  const appElapsed = blocks.reduce((acc, block) => {
-    return (
-      acc + block.tasks.reduce((taskAcc, task) => taskAcc + task.elapsed, 0)
+  const appElapsed = useMemo(() => {
+    return blocks.reduce((acc, block) => {
+      return (
+        acc + block.tasks.reduce((taskAcc, task) => taskAcc + task.elapsed, 0)
+      );
+    }, 0);
+  }, [blocks]);
+
+  const appPlanned = useMemo(() => {
+    return blocks.reduce(
+      (acc, block) =>
+        acc +
+        block.tasks.reduce((taskAcc, task) => taskAcc + task.duration * 60, 0),
+      0
     );
-  }, 0);
-  const appPlanned = blocks.reduce((acc, block) => {
-    return (
-      acc + block.tasks.reduce((taskAcc, task) => taskAcc + task.duration, 0)
-    );
-  }, 0);
+  }, [blocks]);
   const appProgress = (appElapsed / appPlanned) * 100;
 
   // Start Task Timer
@@ -88,8 +91,6 @@ export const useSessionTimer = ({
 
         return next;
       });
-
-      // Task completed
 
       setRemainingTask((prev) => Math.max(prev - 1, 0));
     }, 1000);
@@ -156,7 +157,7 @@ export const useSessionTimer = ({
         },
       },
     });
-  }, [taskElapsed, remainingTask]);
+  }, [taskElapsed, remainingTask, activeTask, block.id, dispatch]);
 
   return {
     // Task Timer
@@ -165,11 +166,12 @@ export const useSessionTimer = ({
     startTimer,
     pauseTimer,
     resetTimer,
+
     // Session Timer
     sessionElapsed,
     sessionRemaining,
     sessionPlanned,
-    sessionProgress,
+
     // App Timer
     appElapsed,
     appPlanned,
