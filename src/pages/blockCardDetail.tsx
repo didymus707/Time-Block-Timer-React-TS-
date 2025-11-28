@@ -61,6 +61,13 @@ export const CardDetails = () => {
     activeTask: safeTask,
   });
 
+  console.log("debugging ===========", {
+    taskElapsed,
+    remainingTask,
+    sessionElapsed,
+    sessionRemaining,
+  });
+
   if (!block) {
     return <div className="p-6 text-gray-600">Block not found.</div>;
   }
@@ -112,7 +119,6 @@ export const CardDetails = () => {
         }
       >
         {/*  PROGRESS BAR for Session */}
-
         {block && activeTask && (
           <TimeProgress
             label="Session Progress"
