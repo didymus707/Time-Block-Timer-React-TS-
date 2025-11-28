@@ -1,12 +1,13 @@
 import { useState } from "react";
-import type { Task } from "../types";
+import type { Task } from "../../types";
+import { Input } from "../primitives/input";
 
 interface TaskFormProps {
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
 }
 
 const TaskForm: React.FC<TaskFormProps> = ({ setTasks }) => {
-  const [taskValue, setTaskValue] = useState("");
+  const [taskValue, setTaskValue] = useState<string>("");
   const [taskDuration, setTaskDuration] = useState<string | undefined>(
     undefined
   );
@@ -19,8 +20,11 @@ const TaskForm: React.FC<TaskFormProps> = ({ setTasks }) => {
       id: crypto.randomUUID(),
       blockId: "",
       name: taskValue,
-      duration: Number(taskDuration),
       completed: false,
+      elapsed: 0,
+      progress: 0,
+      duration: Number(taskDuration),
+      remaining: Number(taskDuration),
     };
     setTasks((prevTasks) => [...prevTasks, newTask]);
     setTaskValue("");
@@ -37,23 +41,22 @@ const TaskForm: React.FC<TaskFormProps> = ({ setTasks }) => {
                 Add Tasks to your Session
               </p>
               <div className="flex justify-between w-full gap-4">
-                <input
-                  id="task-name"
+                <Input
                   type="text"
-                  value={taskValue}
-                  className="bg-gray-100 rounded-lg p-2 mt-2 basis-[65%] focus:border-4 focus:border-gray-300 focus:outline-gray-300"
-                  onChange={(e) => setTaskValue(e.target.value)}
-                  placeholder="Task name( e.g Read Percy Jackson)"
+                  id="task"
+                  inputValue={taskValue}
+                  setValue={setTaskValue}
+                  className={`basis-[65%]`}
+                  placeholder="e.g.,Write report"
                 />
-                <input
+                <Input
                   min={0}
                   type="number"
                   id="task-in-minutes"
                   placeholder="Minutes"
-                  name="task-in-minutes"
-                  value={taskDuration ?? ""}
-                  className="bg-gray-100 rounded-lg p-2 mt-2 basis-[15%] focus:border-4 focus:border-gray-300 focus:outline-gray-300"
-                  onChange={(e) => setTaskDuration(e.target.value || "")}
+                  setValue={setTaskDuration}
+                  className={`basis-15%`}
+                  inputValue={taskDuration ?? ""}
                 />
                 <button
                   type="button"

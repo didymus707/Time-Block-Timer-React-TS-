@@ -1,10 +1,30 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import App from './App.tsx'
 import "./index.css";
+import App from "./components/App.tsx";
+import { StrictMode } from "react";
+import { Home } from "./pages/home.tsx";
+import { createRoot } from "react-dom/client";
+import { CardDetails } from "./pages/blockCardDetail.tsx";
+import { BrowserRouter, Route, Routes } from "react-router";
+import {
+  BlockProvider,
+  BlockUIProvider,
+} from "./context/blockContextProvider.tsx";
 
-createRoot(document.getElementById('root')!).render(
+const root = document.getElementById("root")!;
+
+createRoot(root).render(
   <StrictMode>
-    <App />
-  </StrictMode>,
-)
+    <BrowserRouter>
+      <BlockProvider>
+        <BlockUIProvider>
+          <Routes>
+            <Route path="/" element={<App />}>
+              <Route index element={<Home />} />
+              <Route path="block/:id" element={<CardDetails />} />
+            </Route>
+          </Routes>
+        </BlockUIProvider>
+      </BlockProvider>
+    </BrowserRouter>
+  </StrictMode>
+);
