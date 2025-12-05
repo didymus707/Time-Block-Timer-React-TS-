@@ -277,7 +277,7 @@ export const BlockForm: React.FC<BlockFormProps> = ({
                         <p className="text-gray-500 mt-1">
                           {totalTaskDuration === totalDuration
                             ? "Perfect fit!"
-                            : `${remainingTime} m remaining`}
+                            : `${remainingTime}m remaining`}
                         </p>
                       )}
                     </div>
