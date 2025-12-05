@@ -13,8 +13,8 @@ interface TaskModalProps {
 export const TaskModal = ({ blockId, isOpen, onClose }: TaskModalProps) => {
   const { dispatch } = useBlock();
   const [name, setName] = useState("");
-  const notify = () => toast("Block added!");
   const [duration, setDuration] = useState("");
+  const notify = () => toast("Task added!");
 
   if (!isOpen || !blockId) return null;
 
