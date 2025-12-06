@@ -25,8 +25,10 @@ export const BlockForm: React.FC<BlockFormProps> = ({
   );
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
 
-  const totalDuration =
-    (Number(sessionHours)! * 60 || 0) + (Number(sessionMinutes) || 0);
+  const hours = parseInt(sessionHours  || "0", 10);
+  const minutes = parseInt(sessionMinutes || "0", 10);
+
+  const totalDuration = hours * 60 + minutes;
   const totalTaskDuration = tasks.reduce(
     (acc, task) => acc + Number(task.duration),
     0
@@ -90,7 +92,7 @@ export const BlockForm: React.FC<BlockFormProps> = ({
       <div className="block-form-wrapper flex justify-center items-center fixed inset-0 bg-black/60 z-50">
         <div
           className="block-form-card bg-white text-gray-900 border-2 border-gray-200 rounded-lg p-6 
-                  w-full sm:w-3/4 md:w-1/2 lg:w-[80%] shadow-lg mx-auto"
+                  w-full sm:w-3/4 md:w-1/2 lg:w-[50%] shadow-lg mx-auto"
         >
           <div className="form-header my-4">
             <div className="flex rounded-lg items-center" onClick={() => {}}>
