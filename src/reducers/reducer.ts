@@ -48,6 +48,19 @@ export const blockReducer = (state: Block[], action: Action): Block[] => {
           ? { ...block, activeTaskId: action.payload.taskId }
           : block
       );
+    case "UPDATE_TASK":
+      return state.map((block) =>
+        block.id === action.payload.blockId
+          ? {
+              ...block,
+              tasks: block.tasks.map((task) =>
+                task.id === action.payload.taskId
+                  ? { ...task, ...action.payload.data }
+                  : task
+              ),
+            }
+          : block
+      );
     // case "STOP_BLOCK":
     //   return state.map((block: Block) =>
     //     block.id === action.payload.id
