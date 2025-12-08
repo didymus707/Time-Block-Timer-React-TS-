@@ -30,9 +30,8 @@ export const Overview = () => {
       totalPlanned += task.duration;
     }
   }
-  console.log('totalPlanned ====>', totalPlanned)
 
-  const progress = (elapsed / (totalPlanned * 60)) * 100;
+  const progress = (elapsed / (totalPlanned * 60)) * 100 || 0;
 
   return (
     <>

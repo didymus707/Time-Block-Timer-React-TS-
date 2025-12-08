@@ -18,9 +18,7 @@ export const useSessionTimer = ({
   const [remainingTask, setRemainingTask] = useState<number>(
     activeTask ? activeTask.duration * 60 : 0
   );
-  console.log('remainingTask ========>', remainingTask)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  
 
   // refs holding immediate values and avoid state closure issues
   const activeTaskRef = useRef<Task | null>(activeTask);
@@ -39,22 +37,6 @@ export const useSessionTimer = ({
     const found = blocks.find((b) => b.id === block.id);
     return found ?? block;
   }, [blocks, block]);
-
-  useEffect(() => {
-    console.log("[DEBUG] freshBlock.tasks on mount/update:", freshBlock.tasks);
-    console.log(
-      "[DEBUG] Computed sessionElapsed:",
-      freshBlock.tasks.reduce((acc, task) => acc + task.elapsed, 0)
-    );
-    console.log(
-      "[DEBUG] Computed sessionRemaining:",
-      freshBlock.tasks.reduce((acc, task) => acc + task.remaining, 0)
-    );
-    console.log(
-      "[DEBUG] Computed sessionPlanned:",
-      freshBlock.tasks.reduce((acc, task) => acc + task.duration * 60, 0)
-    );
-  }, [freshBlock.tasks]);
 
   //  keep refs in sync when active task changes
   useEffect(() => {
@@ -121,7 +103,7 @@ export const useSessionTimer = ({
 
     dispatch({
       type: "UPDATE_BLOCK",
-      payload: { ...block, status: "running" },
+      payload: { ...freshBlock, status: "running" },
     });
 
     intervalRef.current = setInterval(() => {
@@ -155,7 +137,7 @@ export const useSessionTimer = ({
       dispatch({
         type: "UPDATE_TASK",
         payload: {
-          blockId: block.id,
+          blockId: freshBlock.id,
           taskId: task.id,
           data: {
             elapsed: nextElapsed,
@@ -176,7 +158,7 @@ export const useSessionTimer = ({
         dispatch({
           type: "UPDATE_TASK",
           payload: {
-            blockId: block.id,
+            blockId: freshBlock.id,
             taskId: task.id,
             data: {
               completed: true,
@@ -189,7 +171,7 @@ export const useSessionTimer = ({
 
         dispatch({
           type: "UPDATE_BLOCK",
-          payload: { ...block, status: "idle" },
+          payload: { ...freshBlock, status: "idle" },
         });
       }
     }, 1000);
@@ -203,6 +185,10 @@ export const useSessionTimer = ({
     intervalRef.current = null;
 
     const t = activeTaskRef.current;
+    console.log("pause t before dispatching UPDATE_BLOCK=====>", {
+      t,
+      freshBlock,
+    });
     if (t) {
       dispatch({
         type: "UPDATE_TASK",
@@ -225,77 +211,75 @@ export const useSessionTimer = ({
       type: "UPDATE_BLOCK",
       payload: { ...freshBlock, status: "paused" },
     });
+    console.log("pause t after dispatching UPDATE_BLOCK=====>", { t, freshBlock });
   };
 
   // Reset Task Timer
   const resetTimer = () => {
+    // stop interval if running
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
 
-    const t = activeTaskRef.current;
-    const initialRemaining = t ? Math.max(t.duration * 60, 0) : 0;
+    // derive the latest active task from freshBlock (safer than using the ref)
+    const activeTaskId =
+      freshBlock.activeTaskId ?? (activeTask ? activeTask.id : null);
+    const t = activeTaskId
+      ? freshBlock.tasks.find((task) => task.id === activeTaskId) ?? null
+      : null;
 
+    // compute initial remaining (seconds) based on the task from freshBlock
+    const initialRemaining = t ? Math.max(Number(t.duration) * 60, 0) : 0;
+
+    // sync refs + local UI state immediately so the UI shows reset values before context update
     elapsedRef.current = 0;
     remainingRef.current = initialRemaining;
-
     setTaskElapsed(0);
-    setRemainingTask(activeTask ? initialRemaining : 0);
+    setRemainingTask(initialRemaining);
 
-    dispatch({
-      type: "UPDATE_TASK",
-      payload: {
-        blockId: freshBlock.id,
-        taskId: t ? t.id : "",
-        data: {
-          completed: false,
-          elapsed: 0,
-          remaining: t ? initialRemaining : 0,
-          progress: 0,
-        },
-      },
-    });
+    // if no active task found -> still update block.status and return
+    if (!t) {
+      dispatch({
+        type: "UPDATE_BLOCK",
+        payload: { ...freshBlock, status: "idle" },
+      });
+      return;
+    }
 
+    // build new tasks array with the reset task replaced
+    const updatedTasks = freshBlock.tasks.map((task) =>
+      task.id === t.id
+        ? {
+            ...task,
+            completed: false,
+            elapsed: 0,
+            remaining: initialRemaining,
+            progress: 0,
+          }
+        : task
+    );
+
+    // dispatch a full block update including the new tasks array and idle status
     dispatch({
       type: "UPDATE_BLOCK",
-      payload: { ...block, status: "idle" },
+      payload: { ...freshBlock, status: "idle", tasks: updatedTasks },
     });
+
+    // defensive log (optional) to verify reset happened
+    console.log("[RESET] activeTaskId:", activeTaskId, "initialRemaining:", initialRemaining);
+    console.log("[RESET] updatedTasks:", updatedTasks);
   };
 
-  // -------------------
-  // SYNC ACTIVE TASK TO CONTEXT
-  // -------------------
-  useEffect(() => {
-    const t = activeTaskRef.current;
-    if (!t) return;
-
-    dispatch({
-      type: "UPDATE_TASK",
-      payload: {
-        blockId: freshBlock.id,
-        taskId: t.id,
-        data: {
-          elapsed: taskElapsed,
-          remaining: remainingTask,
-          progress:
-            t.duration * 60 === 0 ? 0 : (taskElapsed / (t.duration * 60)) * 100,
-        },
-      },
-    });
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [taskElapsed, remainingTask]);
-
   // Cleanup interval on unmount
-  useEffect(() => {
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-    };
-  }, []);
+  // useEffect(() => {
+  //   return () => {
+  //     if (intervalRef.current) {
+  //       clearInterval(intervalRef.current);
+  //       intervalRef.current = null;
+  //     }
+  //   };
+  // }, []);
 
   return {
     // Task Timer
