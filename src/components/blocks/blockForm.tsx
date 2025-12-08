@@ -25,7 +25,7 @@ export const BlockForm: React.FC<BlockFormProps> = ({
   );
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
 
-  const hours = parseInt(sessionHours  || "0", 10);
+  const hours = parseInt(sessionHours || "0", 10);
   const minutes = parseInt(sessionMinutes || "0", 10);
 
   const totalDuration = hours * 60 + minutes;
@@ -62,7 +62,15 @@ export const BlockForm: React.FC<BlockFormProps> = ({
 
     const blockId = crypto.randomUUID();
 
-    const tasksWithBlockId = tasks.map((task) => ({ ...task, blockId }));
+    const tasksWithBlockId = tasks.map((task) => ({
+      ...task,
+      blockId,
+      duration: Number(task.duration),
+      elapsed: 0,
+      remaining: Number(task.duration) * 60,
+      progress: 0,
+      completed: false,
+    }));
 
     const newBlock: Block = {
       id: blockId,
