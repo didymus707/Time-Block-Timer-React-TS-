@@ -3,7 +3,6 @@ import { Card } from "../primitives/card";
 import { useBlock } from "../../context/blockContext";
 import { CheckCircle, Clock, Pause, Play, Task } from "../primitives/icons";
 import { TimeProgress } from "./timeProgress";
-import { blockTimer } from "../hooks/blockTimer";
 
 export const Overview = () => {
   const { blocks } = useBlock();
@@ -18,15 +17,22 @@ export const Overview = () => {
   );
   const totalTasks = blocks.reduce((acc, block) => acc + block.tasks.length, 0);
 
-  const totalPlanned = blocks.reduce(
-    (acc, b) => acc + blockTimer({ block: b }).planned,
-    0
-  );
-  const totalElapsed = blocks.reduce(
-    (acc, b) => acc + blockTimer({ block: b }).elapsed,
-    0
-  );
-  const progress = totalPlanned === 0 ? 0 : (totalElapsed / totalPlanned) * 100;
+  let elapsed = 0;
+  for (const block of blocks) {
+    for (const task of block.tasks) {
+      elapsed += task.elapsed;
+    }
+  }
+
+  let totalPlanned = 0;
+  for (const block of blocks) {
+    for (const task of block.tasks) {
+      totalPlanned += task.duration;
+    }
+  }
+  console.log('totalPlanned ====>', totalPlanned)
+
+  const progress = (elapsed / (totalPlanned * 60)) * 100;
 
   return (
     <>
@@ -70,8 +76,8 @@ export const Overview = () => {
         {/*  PROGRESS BAR  */}
         <TimeProgress
           label="Time Progress"
-          elapsed={totalElapsed}
-          planned={totalPlanned}
+          elapsed={elapsed}
+          planned={(totalPlanned * 60)}
           progress={progress}
           variant="total"
         />
