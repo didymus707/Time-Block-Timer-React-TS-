@@ -77,8 +77,8 @@ export const BlockCard = ({ block }: BlockCardProps) => {
               • {t.name}
             </li>
           ))}
-          {block.tasks.length < 3 &&
-            Array.from({ length: 3 - block.tasks.length }).map((_, i) => (
+          {block.tasks.length <= 3 &&
+            Array.from({ length: 4 - block.tasks.length }).map((_, i) => (
               <li key={`placeholder-${i}`} className="opacity-0">
                 •
               </li>
