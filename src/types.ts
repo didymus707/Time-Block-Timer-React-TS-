@@ -1,17 +1,21 @@
 export type Status = "idle" | "running" | "paused" | "completed";
 
+export interface PauseEvent {
+  pausedAt: number; // Date.now()
+  resumedAt?: number; // Date.now()
+  reason?: string; // optional user note
+}
+
 export interface Block {
   id: string;
   name: string;
   tasks: Task[];
   status: Status;
-  elapsed: number;
   duration: number;
-  progress: number;
   createdAt: string;
-  remaining: number;
   completed: boolean;
   activeTaskId?: string | null;
+  pauses: PauseEvent[];
 }
 
 export interface Task {
