@@ -1,8 +1,8 @@
 export type Status = "idle" | "running" | "paused" | "completed";
 
 export interface PauseEvent {
-  pausedAt: number; // Date.now()
-  resumedAt?: number; // Date.now()
+  pausedAt: number;
+  resumedAt?: number;
   reason?: string; // optional user note
 }
 
@@ -43,7 +43,9 @@ export type Action =
   | {
       type: "SET_ACTIVE_TASK";
       payload: { blockId: string; taskId: string | null };
-    };
+    }
+  | { type: "PAUSE_BLOCK"; blockId: string }
+  | { type: "RESUME_BLOCK"; blockId: string; reason?: string };
 
 export interface BlockContextType {
   blocks: Block[];
