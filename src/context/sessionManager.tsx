@@ -8,7 +8,7 @@ export const SessionProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const { dispatch, blocks } = useBlock();
+  const { dispatch } = useBlock();
 
   // GLOBAL STATE
   const [activeTask, setActiveTask] = useState<Task | null>(null);
