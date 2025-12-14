@@ -9,7 +9,7 @@ import {
   BlockProvider,
   BlockUIProvider,
 } from "./context/blockContextProvider.tsx";
-import { SessionProvider } from "./context/sessionProvider.tsx";
+import { SessionProvider } from "./context/sessionManager.tsx";
 
 const root = document.getElementById("root")!;
 
