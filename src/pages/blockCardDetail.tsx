@@ -5,10 +5,9 @@ import Button from "../components/primitives/button";
 import { useNavigate, useParams } from "react-router";
 import { Clock } from "../components/primitives/icons";
 import { TaskModal } from "../components/modals/task";
+import { useSession } from "../context/sessionContext";
 import { TimeProgress } from "../components/blocks/timeProgress";
 import { SessionControl } from "../components/blocks/sessionControl";
-import { useSessionTimer } from "../components/hooks/useSessionTimer";
-import { useSession } from "../context/sessionContext";
 
 export const CardDetails = () => {
   const { blocks, dispatch } = useBlock();
@@ -18,6 +17,15 @@ export const CardDetails = () => {
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const { activeTask, activeBlock, start, pause, reset } = useSession();
+
+  const taskElapsed = activeTask?.elapsed ?? 0;
+  const remainingTask = activeTask?.remaining ?? 0;
+
+  const sessionElapsed =
+    activeBlock?.tasks.reduce((acc, t) => acc + t.elapsed, 0) ?? 0;
+
+  const sessionRemaining =
+    activeBlock?.tasks.reduce((acc, t) => acc + t.remaining, 0) ?? 0;
 
   const block = blocks.find((b) => b.id === id);
 
@@ -72,7 +80,7 @@ export const CardDetails = () => {
         }
       >
         {/*  PROGRESS BAR for Session */}
-        {block && activeTask && (
+        {block && (
           <TimeProgress
             label="Session Progress"
             elapsed={sessionElapsed}
@@ -128,7 +136,10 @@ export const CardDetails = () => {
               {block.tasks.map((task) => (
                 <li key={task.id}>
                   <button
-                    onClick={() => setActiveTask(task.id)}
+                    onClick={() => {
+                      setActiveTask(task.id);
+                      start(block, task);
+                    }}
                     className="border border-gray-200 p-2 rounded-lg bg-gray-100 w-full "
                   >
                     {task.name} ({task.duration})min
