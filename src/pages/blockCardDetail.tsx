@@ -8,6 +8,7 @@ import { TaskModal } from "../components/modals/task";
 import { TimeProgress } from "../components/blocks/timeProgress";
 import { SessionControl } from "../components/blocks/sessionControl";
 import { useSessionTimer } from "../components/hooks/useSessionTimer";
+import { useSession } from "../context/sessionContext";
 
 export const CardDetails = () => {
   const { blocks, dispatch } = useBlock();
@@ -16,50 +17,9 @@ export const CardDetails = () => {
   const { id } = useParams<{ id: string }>();
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
+  const { activeTask, activeBlock, start, pause, reset } = useSession();
 
   const block = blocks.find((b) => b.id === id);
-
-  const activeTask = block?.activeTaskId
-    ? block?.tasks.find((t) => t.id === block.activeTaskId)
-    : block?.tasks[0];
-
-  const safeBlock = block ?? {
-    id: "placeholder",
-    name: "",
-    tasks: [],
-    duration: 0,
-    activeTaskId: null,
-    status: "idle",
-    remaining: 0,
-    progress: 0,
-    elapsed: 0,
-    createdAt: "",
-    completed: false,
-  };
-
-  const safeTask = activeTask ?? {
-    id: "placeholder",
-    name: "",
-    blockId: "",
-    duration: 0,
-    elapsed: 0,
-    remaining: 0,
-    progress: 0,
-    completed: false,
-  };
-
-  const {
-    startTimer,
-    pauseTimer,
-    resetTimer,
-    taskElapsed,
-    remainingTask,
-    sessionElapsed,
-    sessionRemaining,
-  } = useSessionTimer({
-    block: safeBlock,
-    activeTask: safeTask,
-  });
 
   if (!block) {
     return <div className="p-6 text-gray-600">Block not found.</div>;
@@ -181,9 +141,9 @@ export const CardDetails = () => {
 
         <SessionControl
           status={block.status}
-          onStart={startTimer}
-          onPause={pauseTimer}
-          onReset={resetTimer}
+          onStart={() => start(activeBlock!, activeTask!)}
+          onPause={pause}
+          onReset={reset}
         />
       </Card>
 
