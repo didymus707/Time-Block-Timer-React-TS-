@@ -19,82 +19,83 @@ export const SessionProvider = ({
   const elapsedRef = useRef<number>(0);
   const remainingRef = useRef<number>(0);
 
- const start = (block: Block, task: Task) => {
-   // 1. Stop any existing interval
-   if (intervalRef.current) {
-     clearInterval(intervalRef.current);
-     intervalRef.current = null;
-   }
+  const start = (block: Block, task: Task) => {
+    // 1. Stop any existing interval
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
 
-   // 2. Register active session
-   setActiveBlock(block);
-   setActiveTask(task);
+    // 2. Register active session
+    setActiveBlock(block);
+    setActiveTask(task);
 
-   // 3. Initialize refs
-   const total = task.duration * 60;
-   const initialElapsed = task.elapsed ?? 0;
-   const initialRemaining =
-     task.remaining ?? Math.max(total - initialElapsed, 0);
+    // 3. Initialize refs
+    const total = task.duration * 60;
+    const initialElapsed = task.elapsed ?? 0;
+    const initialRemaining =
+      task.remaining ?? Math.max(total - initialElapsed, 0);
 
-   elapsedRef.current = initialElapsed;
-   remainingRef.current = initialRemaining;
+    elapsedRef.current = initialElapsed;
+    remainingRef.current = initialRemaining;
 
-   // 4. Update block status
-   dispatch({
-     type: "UPDATE_BLOCK",
-     payload: { ...block, status: "running" },
-   });
+    // 4. Update block status
+    dispatch({
+      type: "UPDATE_BLOCK",
+      payload: { ...block, status: "running" },
+    });
 
-   // 5. Start global interval
-   intervalRef.current = setInterval(() => {
-     const nextElapsed = Math.min(elapsedRef.current + 1, total);
-     const nextRemaining = Math.max(total - nextElapsed, 0);
-     const nextProgress = (nextElapsed / total) * 100;
+    // 5. Start global interval
+    intervalRef.current = setInterval(() => {
+      const nextElapsed = Math.min(elapsedRef.current + 1, total);
+      const nextRemaining = Math.max(total - nextElapsed, 0);
+      const nextProgress = (nextElapsed / total) * 100;
 
-     // Update refs
-     elapsedRef.current = nextElapsed;
-     remainingRef.current = nextRemaining;
+      // Update refs
+      elapsedRef.current = nextElapsed;
+      remainingRef.current = nextRemaining;
 
-     // Push update to reducer
-     dispatch({
-       type: "UPDATE_TASK",
-       payload: {
-         blockId: block.id,
-         taskId: task.id,
-         data: {
-           elapsed: nextElapsed,
-           remaining: nextRemaining,
-           progress: nextProgress,
-         },
-       },
-     });
+      // Push update to reducer
+      dispatch({
+        type: "UPDATE_TASK",
+        payload: {
+          blockId: block.id,
+          taskId: task.id,
+          data: {
+            elapsed: nextElapsed,
+            remaining: nextRemaining,
+            progress: nextProgress,
+          },
+        },
+      });
 
-     // If completed, finalize
-     if (nextElapsed >= total) {
-       clearInterval(intervalRef.current!);
-       intervalRef.current = null;
+      // If completed, finalize
+      if (nextElapsed >= total) {
+        clearInterval(intervalRef.current!);
+        intervalRef.current = null;
 
-       dispatch({
-         type: "UPDATE_TASK",
-         payload: {
-           blockId: block.id,
-           taskId: task.id,
-           data: {
-             completed: true,
-             elapsed: total,
-             remaining: 0,
-             progress: 100,
-           },
-         },
-       });
+        dispatch({
+          type: "UPDATE_TASK",
+          payload: {
+            blockId: block.id,
+            taskId: task.id,
+            data: {
+              completed: true,
+              elapsed: total,
+              remaining: 0,
+              progress: 100,
+            },
+          },
+        });
 
-       dispatch({
-         type: "UPDATE_BLOCK",
-         payload: { ...block, status: "idle" },
-       });
-     }
-   }, 1000);
- };
+        dispatch({
+          type: "UPDATE_BLOCK",
+          payload: { ...block, status: "idle" },
+        });
+      }
+    }, 1000);
+  };
+
   const pause = () => {
     if (!intervalRef.current || !activeTask || !activeBlock) return;
 
