@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { getDefaultTask } from "../utils";
 import { useBlock } from "../context/blockContext";
 import { Card } from "../components/primitives/card";
 import Button from "../components/primitives/button";
@@ -32,6 +33,23 @@ export const CardDetails = () => {
   if (!block) {
     return <div className="p-6 text-gray-600">Block not found.</div>;
   }
+
+  const isSameBlock = activeBlock?.id === block.id;
+  const hasPausedTask = isSameBlock && activeTask && block.status === "paused";
+
+  const handleStartSession = () => {
+    // Resume case
+    if (hasPausedTask && activeBlock && activeTask) {
+      start(activeBlock, activeTask);
+      return;
+    }
+
+    // Fresh start case
+    const task = getDefaultTask(block);
+    if (!task) return;
+
+    start(block, task);
+  };
 
   const setActiveTask = (taskId: string) => {
     dispatch({
@@ -152,9 +170,10 @@ export const CardDetails = () => {
 
         <SessionControl
           status={block.status}
-          onStart={() => start(activeBlock!, activeTask!)}
+          onStart={handleStartSession}
           onPause={pause}
           onReset={reset}
+          hasPausedTask={hasPausedTask}
         />
       </Card>
 

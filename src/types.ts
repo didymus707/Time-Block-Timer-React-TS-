@@ -1,4 +1,4 @@
-export type Status = "idle" | "running" | "paused" | "completed";
+export type Status = "idle" | "running" | "paused";
 
 export interface PauseEvent {
   pausedAt: number;

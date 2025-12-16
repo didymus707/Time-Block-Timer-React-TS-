@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Task, Block } from "../types";
 import { useBlock } from "./blockContext";
 import { SessionContext } from "./sessionContext";
@@ -8,7 +8,9 @@ export const SessionProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const { dispatch } = useBlock();
+  const { dispatch, blocks } = useBlock();
+
+  const SESSION_KEY = "active-session";
 
   // GLOBAL STATE
   const [activeTask, setActiveTask] = useState<Task | null>(null);
@@ -29,6 +31,14 @@ export const SessionProvider = ({
     // 2. Register active session
     setActiveBlock(block);
     setActiveTask(task);
+
+    localStorage.setItem(
+      SESSION_KEY,
+      JSON.stringify({
+        blockId: block.id,
+        taskId: task.id,
+      })
+    );
 
     // 3. Initialize refs
     const total = task.duration * 60;
@@ -162,7 +172,31 @@ export const SessionProvider = ({
       type: "UPDATE_BLOCK",
       payload: { ...activeBlock, status: "idle" },
     });
+
+    localStorage.removeItem(SESSION_KEY);
   };
+
+  useEffect(() => {
+    const stored = localStorage.getItem(SESSION_KEY);
+    if (!stored) return;
+
+    try {
+      const { blockId, taskId } = JSON.parse(stored);
+
+      const block = blocks.find((b) => b.id === blockId);
+      const task = block?.tasks.find((t) => t.id === taskId);
+
+      if (block && task && !task.completed) {
+        setActiveBlock(block);
+        setActiveTask(task);
+
+        elapsedRef.current = task.elapsed;
+        remainingRef.current = task.remaining;
+      }
+    } catch {
+      localStorage.removeItem(SESSION_KEY);
+    }
+  }, [blocks]);
 
   return (
     <SessionContext.Provider
