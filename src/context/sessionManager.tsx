@@ -81,9 +81,11 @@ export const SessionProvider = ({
 
       // If completed, finalize
       if (nextElapsed >= total) {
+        // stop interval
         clearInterval(intervalRef.current!);
         intervalRef.current = null;
 
+        // update task as completed
         dispatch({
           type: "UPDATE_TASK",
           payload: {
@@ -98,10 +100,27 @@ export const SessionProvider = ({
           },
         });
 
+        const currentIndex = block.tasks.findIndex(t => t.id === task.id);
+        const nextTask = block.tasks[currentIndex + 1];
+
+        if (nextTask) {
+          setActiveTask(nextTask);
+
+          elapsedRef.current = nextTask.elapsed ?? 0;
+          remainingRef.current = nextTask.remaining ?? nextTask.duration * 60
+
+          start(block, nextTask);
+          return;
+        }
+
         dispatch({
           type: "UPDATE_BLOCK",
           payload: { ...block, status: "idle" },
         });
+
+        setActiveTask(null);
+        setActiveBlock(null);
+        localStorage.removeItem(SESSION_KEY);
       }
     }, 1000);
   };
