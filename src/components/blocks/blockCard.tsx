@@ -29,6 +29,8 @@ export const BlockCard = ({ block }: BlockCardProps) => {
     start(block, task);
   };
 
+  // const sessionElapsed = 
+
   return (
     <div>
       <Card
