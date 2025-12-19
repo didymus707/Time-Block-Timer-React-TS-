@@ -115,7 +115,7 @@ export const SessionProvider = ({
 
         dispatch({
           type: "UPDATE_BLOCK",
-          payload: { ...block, status: "idle" },
+          payload: { ...block, completed: true, status: "idle" },
         });
 
         setActiveTask(null);
