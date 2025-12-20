@@ -242,7 +242,14 @@ export const SessionProvider = ({
     } catch {
       localStorage.removeItem(SESSION_KEY);
     }
-  }, [blocks]);
+
+    if (activeBlock) {
+      const stillExists = blocks.some((b) => b.id === activeBlock.id);
+      if (!stillExists) {
+        terminateSession();
+      }
+    }
+  }, [blocks, activeBlock, terminateSession]);
 
   return (
     <SessionContext.Provider
