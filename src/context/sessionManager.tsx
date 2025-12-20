@@ -21,6 +21,33 @@ export const SessionProvider = ({
   const elapsedRef = useRef<number>(0);
   const remainingRef = useRef<number>(0);
 
+  const terminateSession = () => {
+    // stop the interval
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
+    // reset refs
+    elapsedRef.current = 0;
+    remainingRef.current = 0;
+
+    // reset block status if it exists
+    if (activeBlock) {
+      dispatch({
+        type: "UPDATE_BLOCK",
+        payload: { ...activeBlock, status: "idle" },
+      });
+    }
+
+    // clear session state
+    setActiveBlock(null);
+    setActiveTask(null);
+
+    // 5. Clear persisted session
+    localStorage.removeItem(SESSION_KEY);
+  };
+
   const start = (block: Block, task: Task) => {
     // 1. Stop any existing interval
     if (intervalRef.current) {
@@ -100,14 +127,14 @@ export const SessionProvider = ({
           },
         });
 
-        const currentIndex = block.tasks.findIndex(t => t.id === task.id);
+        const currentIndex = block.tasks.findIndex((t) => t.id === task.id);
         const nextTask = block.tasks[currentIndex + 1];
 
         if (nextTask) {
           setActiveTask(nextTask);
 
           elapsedRef.current = nextTask.elapsed ?? 0;
-          remainingRef.current = nextTask.remaining ?? nextTask.duration * 60
+          remainingRef.current = nextTask.remaining ?? nextTask.duration * 60;
 
           start(block, nextTask);
           return;
