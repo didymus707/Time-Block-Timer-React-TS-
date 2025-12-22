@@ -15,6 +15,8 @@ export const SessionProvider = ({
   // GLOBAL STATE
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [activeBlock, setActiveBlock] = useState<Block | null>(null);
+  const hasActiveSession = !!activeBlock && !!activeTask;
+  const hasRestoredRef = useRef(false);
 
   // GLOBAL REFS
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -22,6 +24,8 @@ export const SessionProvider = ({
   const remainingRef = useRef<number>(0);
 
   const terminateSession = () => {
+    if (!hasActiveSession) return;
+
     // stop the interval
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
@@ -58,6 +62,8 @@ export const SessionProvider = ({
     // 2. Register active session
     setActiveBlock(block);
     setActiveTask(task);
+    console.log("START CALLED", block.id, task.id);
+
 
     localStorage.setItem(
       SESSION_KEY,
@@ -91,6 +97,16 @@ export const SessionProvider = ({
       // Update refs
       elapsedRef.current = nextElapsed;
       remainingRef.current = nextRemaining;
+
+      console.log(
+        "status changed to running now inside interval",
+        elapsedRef.current
+      );
+
+      console.log(
+        "status changed to running now inside interval",
+        remainingRef.current
+      );
 
       // Push update to reducer
       dispatch({
@@ -222,43 +238,49 @@ export const SessionProvider = ({
     localStorage.removeItem(SESSION_KEY);
   };
 
+  // restoring from local storage on mount
   useEffect(() => {
+    if (hasRestoredRef.current) return;
+    hasRestoredRef.current = true;
+
     const stored = localStorage.getItem(SESSION_KEY);
     if (!stored) return;
 
     try {
       const { blockId, taskId } = JSON.parse(stored);
-
       const block = blocks.find((b) => b.id === blockId);
-      const task = block?.tasks.find((t) => t.id === taskId);
+      const task = block?.tasks.find((b) => b.id === taskId);
 
-      if (block && task && !task.completed) {
+      if (block && task && !task.completed && block.tasks.length > 0) {
         setActiveBlock(block);
         setActiveTask(task);
 
-        elapsedRef.current = task.elapsed;
-        remainingRef.current = task.remaining;
+        elapsedRef.current = task.elapsed ?? 0;
+        remainingRef.current = task.remaining ?? task.duration * 60;
+      } else {
+        localStorage.removeItem(SESSION_KEY);
       }
     } catch {
       localStorage.removeItem(SESSION_KEY);
     }
+  }, [blocks]);
 
-    if (activeBlock) {
-      const stillExists = blocks.some((b) => b.id === activeBlock.id);
-      if (!stillExists) {
-        terminateSession();
-      }
+  // terminate session if block or task no longer exist
+  useEffect(() => {
+    if (!activeBlock || !activeTask) return;
+
+    const block = blocks.find((b) => b.id === activeBlock.id);
+    if (!block) {
+      terminateSession();
+      return;
     }
 
-    if (activeBlock && activeTask) {
-      const block = blocks.find((b) => b.id === activeBlock.id);
-      const taskStillExists = block?.tasks.some((t) => t.id === activeTask.id);
+    const taskStillExists = block?.tasks.some((t) => t.id === activeTask.id);
 
-      if (!taskStillExists) {
-        terminateSession();
-      }
+    if (!taskStillExists) {
+      terminateSession();
     }
-  }, [blocks, activeBlock]);
+  }, [blocks]);
 
   return (
     <SessionContext.Provider
