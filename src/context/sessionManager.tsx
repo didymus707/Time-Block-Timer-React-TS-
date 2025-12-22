@@ -249,7 +249,16 @@ export const SessionProvider = ({
         terminateSession();
       }
     }
-  }, [blocks, activeBlock, terminateSession]);
+
+    if (activeBlock && activeTask) {
+      const block = blocks.find((b) => b.id === activeBlock.id);
+      const taskStillExists = block?.tasks.some((t) => t.id === activeTask.id);
+
+      if (!taskStillExists) {
+        terminateSession();
+      }
+    }
+  }, [blocks, activeBlock]);
 
   return (
     <SessionContext.Provider
