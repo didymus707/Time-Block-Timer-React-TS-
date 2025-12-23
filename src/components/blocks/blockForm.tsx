@@ -15,7 +15,6 @@ export const BlockForm: React.FC<BlockFormProps> = ({
 }: BlockFormProps) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [showTask, setShowTask] = useState<boolean>(true);
-  const [sessionEnded, setSessionEnded] = useState<boolean>(false);
   const [sessionName, setSessionName] = useState<string | undefined>("");
   const [sessionHours, setSessionHours] = useState<string | undefined>(
     undefined
@@ -77,7 +76,7 @@ export const BlockForm: React.FC<BlockFormProps> = ({
       name: sessionName || "Untitled Block",
       duration: totalDuration,
       tasks: tasksWithBlockId,
-      completed: sessionEnded,
+      completed: false,
       status: "idle",
       createdAt: new Date().toISOString(),
       pauses: [],
@@ -90,7 +89,6 @@ export const BlockForm: React.FC<BlockFormProps> = ({
     setSessionMinutes("");
     setTasks([]);
     setShowTask(false);
-    setSessionEnded(false);
   };
 
   return (
