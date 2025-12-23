@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { Task, Block } from "../types";
+import type { Block } from "../types";
 import { useBlock } from "./blockContext";
 import { SessionContext } from "./sessionContext";
 
@@ -13,8 +13,13 @@ export const SessionProvider = ({
   const SESSION_KEY = "active-session";
 
   // GLOBAL STATE
-  const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [activeBlock, setActiveBlock] = useState<Block | null>(null);
+  const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
+
+  const activeTask = activeBlock
+    ? activeBlock.tasks.find((t) => t.id === activeTaskId) ?? null
+    : null;
+    
   const hasActiveSession = !!activeBlock && !!activeTask;
   const hasRestoredRef = useRef(false);
 
@@ -22,6 +27,7 @@ export const SessionProvider = ({
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const elapsedRef = useRef<number>(0);
   const remainingRef = useRef<number>(0);
+  const activeTaskIdRef = useRef<string | null>(null);
 
   const terminateSession = () => {
     if (!hasActiveSession) return;
@@ -46,13 +52,23 @@ export const SessionProvider = ({
 
     // clear session state
     setActiveBlock(null);
-    setActiveTask(null);
+    setActiveTaskId(null);
+    activeTaskIdRef.current = null;
 
     // 5. Clear persisted session
     localStorage.removeItem(SESSION_KEY);
   };
 
-  const start = (block: Block, task: Task) => {
+  const startInterval = (block: Block, taskId: string) => {
+    
+  }
+
+  const start = (block: Block) => {
+    const firstTask = block.tasks.find(t => !t.completed);
+    if (!firstTask) return
+
+    
+
     // 1. Stop any existing interval
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
@@ -61,23 +77,21 @@ export const SessionProvider = ({
 
     // 2. Register active session
     setActiveBlock(block);
-    setActiveTask(task);
-    console.log("START CALLED", block.id, task.id);
-
+    setActiveTaskId(firstTask.id);
 
     localStorage.setItem(
       SESSION_KEY,
       JSON.stringify({
         blockId: block.id,
-        taskId: task.id,
+        taskId: firstTask.id,
       })
     );
 
     // 3. Initialize refs
-    const total = task.duration * 60;
-    const initialElapsed = task.elapsed ?? 0;
+    const total = firstTask.duration * 60;
+    const initialElapsed = firstTask.elapsed ?? 0;
     const initialRemaining =
-      task.remaining ?? Math.max(total - initialElapsed, 0);
+      firstTask.remaining ?? Math.max(total - initialElapsed, 0);
 
     elapsedRef.current = initialElapsed;
     remainingRef.current = initialRemaining;
@@ -98,22 +112,12 @@ export const SessionProvider = ({
       elapsedRef.current = nextElapsed;
       remainingRef.current = nextRemaining;
 
-      console.log(
-        "status changed to running now inside interval",
-        elapsedRef.current
-      );
-
-      console.log(
-        "status changed to running now inside interval",
-        remainingRef.current
-      );
-
       // Push update to reducer
       dispatch({
         type: "UPDATE_TASK",
         payload: {
           blockId: block.id,
-          taskId: task.id,
+          taskId: firstTask.id,
           data: {
             elapsed: nextElapsed,
             remaining: nextRemaining,
@@ -133,7 +137,7 @@ export const SessionProvider = ({
           type: "UPDATE_TASK",
           payload: {
             blockId: block.id,
-            taskId: task.id,
+            taskId: firstTask.id,
             data: {
               completed: true,
               elapsed: total,
@@ -143,16 +147,18 @@ export const SessionProvider = ({
           },
         });
 
-        const currentIndex = block.tasks.findIndex((t) => t.id === task.id);
+        const currentIndex = block.tasks.findIndex(
+          (t) => t.id === firstTask.id
+        );
         const nextTask = block.tasks[currentIndex + 1];
 
         if (nextTask) {
-          setActiveTask(nextTask);
+            setActiveTaskId(nextTask.id);
 
           elapsedRef.current = nextTask.elapsed ?? 0;
           remainingRef.current = nextTask.remaining ?? nextTask.duration * 60;
 
-          start(block, nextTask);
+          start(block);
           return;
         }
 
@@ -161,7 +167,7 @@ export const SessionProvider = ({
           payload: { ...block, completed: true, status: "idle" },
         });
 
-        setActiveTask(null);
+        setActiveTaskId(null);
         setActiveBlock(null);
         localStorage.removeItem(SESSION_KEY);
       }
@@ -253,7 +259,7 @@ export const SessionProvider = ({
 
       if (block && task && !task.completed && block.tasks.length > 0) {
         setActiveBlock(block);
-        setActiveTask(task);
+        setActiveTaskId(taskId);
 
         elapsedRef.current = task.elapsed ?? 0;
         remainingRef.current = task.remaining ?? task.duration * 60;
@@ -267,7 +273,7 @@ export const SessionProvider = ({
 
   // terminate session if block or task no longer exist
   useEffect(() => {
-    if (!activeBlock || !activeTask) return;
+    if (!activeBlock || !activeTaskId) return;
 
     const block = blocks.find((b) => b.id === activeBlock.id);
     if (!block) {
@@ -275,17 +281,17 @@ export const SessionProvider = ({
       return;
     }
 
-    const taskStillExists = block?.tasks.some((t) => t.id === activeTask.id);
+    const taskStillExists = block?.tasks.some((t) => t.id === activeTaskId);
 
     if (!taskStillExists) {
       terminateSession();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [blocks]);
 
   return (
     <SessionContext.Provider
       value={{
-        activeTask,
         activeBlock,
         start,
         pause,
