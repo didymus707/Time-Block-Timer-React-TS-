@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { getDefaultTask } from "../utils";
+// import { getDefaultTask } from "../utils";
 import { useBlock } from "../context/blockContext";
 import { Card } from "../components/primitives/card";
 import Button from "../components/primitives/button";
@@ -17,7 +17,11 @@ export const CardDetails = () => {
   const { id } = useParams<{ id: string }>();
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
-  const { activeTask, activeBlock, start, pause, reset } = useSession();
+  const {activeBlock, start, pause, reset } = useSession();
+
+  const activeTask = activeBlock
+    ? activeBlock.tasks.find((t) => !t.completed) ?? null
+    : null;
 
   const taskElapsed = activeTask?.elapsed ?? 0;
   const remainingTask = activeTask?.remaining ?? 0;
@@ -40,15 +44,15 @@ export const CardDetails = () => {
   const handleStartSession = () => {
     // Resume case
     if (hasPausedTask && activeBlock && activeTask) {
-      start(activeBlock, activeTask);
+      start(activeBlock);
       return;
     }
 
     // Fresh start case
-    const task = getDefaultTask(block);
-    if (!task) return;
+    // const task = getDefaultTask(block);
+    // if (!task) return;
 
-    start(block, task);
+    start(block);
   };
 
   const setActiveTask = (taskId: string) => {
@@ -156,7 +160,7 @@ export const CardDetails = () => {
                   <button
                     onClick={() => {
                       setActiveTask(task.id);
-                      start(block, task);
+                      start(block);
                     }}
                     className="border border-gray-200 p-2 rounded-lg bg-gray-100 w-full "
                   >

@@ -19,8 +19,7 @@ export const SessionProvider = ({
   const activeTask = activeBlock
     ? activeBlock.tasks.find((t) => t.id === activeTaskId) ?? null
     : null;
-    
-  const hasActiveSession = !!activeBlock && !!activeTask;
+
   const hasRestoredRef = useRef(false);
 
   // GLOBAL REFS
@@ -30,8 +29,6 @@ export const SessionProvider = ({
   const activeTaskIdRef = useRef<string | null>(null);
 
   const terminateSession = () => {
-    if (!hasActiveSession) return;
-
     // stop the interval
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
@@ -55,60 +52,36 @@ export const SessionProvider = ({
     setActiveTaskId(null);
     activeTaskIdRef.current = null;
 
-    // 5. Clear persisted session
+    // Clear persisted session
     localStorage.removeItem(SESSION_KEY);
   };
 
   const startInterval = (block: Block, taskId: string) => {
-    
-  }
-
-  const start = (block: Block) => {
-    const firstTask = block.tasks.find(t => !t.completed);
-    if (!firstTask) return
-
-    
-
-    // 1. Stop any existing interval
+    // clear any existing interval
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
+    activeTaskIdRef.current = taskId;
 
-    // 2. Register active session
-    setActiveBlock(block);
-    setActiveTaskId(firstTask.id);
-
-    localStorage.setItem(
-      SESSION_KEY,
-      JSON.stringify({
-        blockId: block.id,
-        taskId: firstTask.id,
-      })
-    );
-
-    // 3. Initialize refs
-    const total = firstTask.duration * 60;
-    const initialElapsed = firstTask.elapsed ?? 0;
-    const initialRemaining =
-      firstTask.remaining ?? Math.max(total - initialElapsed, 0);
-
-    elapsedRef.current = initialElapsed;
-    remainingRef.current = initialRemaining;
-
-    // 4. Update block status
-    dispatch({
-      type: "UPDATE_BLOCK",
-      payload: { ...block, status: "running" },
-    });
-
-    // 5. Start global interval
+    // start new interval
     intervalRef.current = setInterval(() => {
+      // interval logic here
+      const liveBlock = blocks.find((b) => b.id === block.id);
+      const liveTask = liveBlock?.tasks.find(
+        (t) => t.id === activeTaskIdRef.current
+      );
+      if (!liveBlock || !liveTask) {
+        // terminate if block or task no longer exist
+        terminateSession();
+        return;
+      }
+
+      const total = liveTask.duration * 60;
       const nextElapsed = Math.min(elapsedRef.current + 1, total);
       const nextRemaining = Math.max(total - nextElapsed, 0);
-      const nextProgress = (nextElapsed / total) * 100;
+      const nextProgress = total === 0 ? 0 : (nextElapsed / total) * 100;
 
-      // Update refs
       elapsedRef.current = nextElapsed;
       remainingRef.current = nextRemaining;
 
@@ -116,8 +89,8 @@ export const SessionProvider = ({
       dispatch({
         type: "UPDATE_TASK",
         payload: {
-          blockId: block.id,
-          taskId: firstTask.id,
+          blockId: liveBlock.id,
+          taskId: liveTask.id,
           data: {
             elapsed: nextElapsed,
             remaining: nextRemaining,
@@ -136,8 +109,8 @@ export const SessionProvider = ({
         dispatch({
           type: "UPDATE_TASK",
           payload: {
-            blockId: block.id,
-            taskId: firstTask.id,
+            blockId: liveBlock.id,
+            taskId: liveTask.id,
             data: {
               completed: true,
               elapsed: total,
@@ -146,32 +119,64 @@ export const SessionProvider = ({
             },
           },
         });
-
-        const currentIndex = block.tasks.findIndex(
-          (t) => t.id === firstTask.id
-        );
-        const nextTask = block.tasks[currentIndex + 1];
-
-        if (nextTask) {
-            setActiveTaskId(nextTask.id);
-
-          elapsedRef.current = nextTask.elapsed ?? 0;
-          remainingRef.current = nextTask.remaining ?? nextTask.duration * 60;
-
-          start(block);
-          return;
-        }
-
-        dispatch({
-          type: "UPDATE_BLOCK",
-          payload: { ...block, completed: true, status: "idle" },
-        });
-
-        setActiveTaskId(null);
-        setActiveBlock(null);
-        localStorage.removeItem(SESSION_KEY);
       }
+
+      const currentIndex = liveBlock.tasks.findIndex(
+        (t) => t.id === liveTask.id
+      );
+      const nextTask = liveBlock.tasks[currentIndex + 1];
+
+      if (nextTask) {
+        setActiveTaskId(nextTask.id);
+
+        elapsedRef.current = nextTask.elapsed ?? 0;
+        remainingRef.current = nextTask.remaining ?? nextTask.duration * 60;
+
+        startInterval(liveBlock, nextTask.id);
+        return;
+      }
+
+      dispatch({
+        type: "UPDATE_BLOCK",
+        payload: { ...liveBlock, completed: true, status: "idle" },
+      });
+
+      terminateSession();
     }, 1000);
+  };
+
+  const start = (block: Block) => {
+    const firstTask = block.tasks.find((t) => !t.completed);
+    if (!firstTask) return;
+
+    // 1. Register active session
+    setActiveBlock(block);
+    setActiveTaskId(firstTask.id);
+    activeTaskIdRef.current = firstTask.id;
+
+    localStorage.setItem(
+      SESSION_KEY,
+      JSON.stringify({
+        blockId: block.id,
+        taskId: firstTask.id,
+      })
+    );
+
+    // 3. Initialize refs
+    const total = firstTask.duration * 60;
+
+    elapsedRef.current = firstTask.elapsed ?? 0;
+    remainingRef.current =
+      firstTask.remaining ?? Math.max(total - elapsedRef.current, 0);
+
+    // 4. Update block status
+    dispatch({
+      type: "UPDATE_BLOCK",
+      payload: { ...block, status: "running" },
+    });
+
+    // 5. Start interval
+    startInterval(block, firstTask.id);
   };
 
   const pause = () => {
@@ -263,6 +268,11 @@ export const SessionProvider = ({
 
         elapsedRef.current = task.elapsed ?? 0;
         remainingRef.current = task.remaining ?? task.duration * 60;
+
+        dispatch({
+          type: "UPDATE_BLOCK",
+          payload: { ...block, status: "running" },
+        });
       } else {
         localStorage.removeItem(SESSION_KEY);
       }

@@ -60,7 +60,7 @@ export interface BlockUIContextType {
 
 export interface SessionContextType {
   activeBlock: Block | null;
-  start: (block: Block, task: Task) => void;
+  start: (block: Block) => void;
   pause: () => void;
   reset: () => void;
 }
