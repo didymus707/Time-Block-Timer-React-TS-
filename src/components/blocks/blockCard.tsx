@@ -1,10 +1,8 @@
 import type { Block } from "../../types";
 import { Card } from "../primitives/card";
 import { useNavigate } from "react-router";
-import { getDefaultTask } from "../../utils";
 import { Clock, Task } from "../primitives/icons";
 import { useBlock } from "../../context/blockContext";
-import { useSession } from "../../context/sessionContext";
 
 interface BlockCardProps {
   block: Block;
@@ -13,7 +11,6 @@ interface BlockCardProps {
 export const BlockCard = ({ block }: BlockCardProps) => {
   const navigate = useNavigate();
   const { dispatch } = useBlock();
-  const { start } = useSession();
 
   const handleCardClick = () => {
     navigate(`/block/${block.id}`);
@@ -22,14 +19,6 @@ export const BlockCard = ({ block }: BlockCardProps) => {
   const toggleBlockStatus = (blockId: string) => {
     dispatch({ type: "TOGGLE_STATUS", payload: { id: blockId } });
   };
-
-  const handleStartSession = () => {
-    const task = getDefaultTask(block);
-    if (!task) return;
-    start(block, task);
-  };
-
-  // const sessionElapsed = 
 
   return (
     <div>
