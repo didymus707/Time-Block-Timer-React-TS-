@@ -10,14 +10,9 @@ interface BlockCardProps {
 
 export const BlockCard = ({ block }: BlockCardProps) => {
   const navigate = useNavigate();
-  const { dispatch } = useBlock();
 
   const handleCardClick = () => {
     navigate(`/block/${block.id}`);
-  };
-
-  const toggleBlockStatus = (blockId: string) => {
-    dispatch({ type: "TOGGLE_STATUS", payload: { id: blockId } });
   };
 
   return (
@@ -39,16 +34,6 @@ export const BlockCard = ({ block }: BlockCardProps) => {
             >
               {block.status}
             </span>
-            <button
-              onClick={(e) => {
-                e.stopPropagation(); // prevent Card onClick
-                toggleBlockStatus(block.id);
-                handleStartSession();
-              }}
-              className="px-3 py-1 text-sm rounded-md bg-blue-500 text-white hover:bg-blue-600 transition"
-            >
-              {block.status === "running" ? "Pause" : "Start"}
-            </button>
           </div>
         }
         onClick={handleCardClick}
