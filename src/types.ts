@@ -11,11 +11,15 @@ export interface Block {
   name: string;
   tasks: Task[];
   status: Status;
-  duration: number;
-  createdAt: string;
-  completed: boolean;
-  activeTaskId?: string | null;
+  // timeTracking
+  actualDuration: number;
+  plannedDuration: number;
+  // precise tracking
+  startedAt?: number;
+  completedAt?: number;
   pauses: PauseEvent[];
+  createdAt: string;
+  activeTaskId?: string | null;
 }
 
 export interface Task {
