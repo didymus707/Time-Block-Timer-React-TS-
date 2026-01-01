@@ -84,12 +84,12 @@ export const SessionProvider = ({
     intervalRef.current = setInterval(() => {
       // calculate elapsed time
       elapsedRef.current =
-        (Date.now() - (startTimeRef.current ?? Date.now())) / 1000;
-      setElapsed(elapsedRef.current);
+        ((Date.now() - (startTimeRef.current ?? Date.now())) / 1000);
+      setElapsed(Math.floor(elapsedRef.current));
 
       // calculate remaining time
       remainingRef.current = Math.max(total - elapsedRef.current, 0);
-      setRemaining(remainingRef.current);
+      setRemaining(Math.floor(remainingRef.current));
 
       // calculate progress
       const progress = total === 0 ? 0 : (elapsedRef.current / total) * 100;
