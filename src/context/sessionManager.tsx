@@ -15,6 +15,9 @@ export const SessionProvider = ({
   // GLOBAL STATE
   const [activeBlock, setActiveBlock] = useState<Block | null>(null);
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
+  const [elapsed, setElapsed] = useState<number>(0);
+  const [progress, setProgress] = useState<number>(0);
+  const [remaining, setRemaining] = useState<number>(0);
 
   const activeTask = activeBlock
     ? activeBlock.tasks.find((t) => t.id === activeTaskId) ?? null
@@ -27,6 +30,7 @@ export const SessionProvider = ({
   const elapsedRef = useRef<number>(0);
   const remainingRef = useRef<number>(0);
   const activeTaskIdRef = useRef<string | null>(null);
+  const startTimeRef = useRef<number | null>(null);
 
   const terminateSession = () => {
     // stop the interval
@@ -63,54 +67,41 @@ export const SessionProvider = ({
       intervalRef.current = null;
     }
     activeTaskIdRef.current = taskId;
+    const task = block.tasks.find((t) => t.id === taskId);
+    if (!task) return;
+
+    // initialize refs
+    // mental note:
+    // actualTime is Date.now()
+    // timeAlreadySpent is elapsedRef.current or task.elapsed as at when starting/resuming
+    // virtualTime which is the onTickTime or startTimeRef.current is the actualTime - timeAlreadySpent
+    elapsedRef.current = task.elapsed ?? 0;
+    startTimeRef.current = Date.now() - elapsedRef.current * 1000;
+    remainingRef.current = task.remaining ?? task.duration * 60;
+    const total = task.duration * 60;
 
     // start new interval
     intervalRef.current = setInterval(() => {
-      // interval logic here
-      const liveBlock = blocks.find((b) => b.id === block.id);
-      const liveTask = liveBlock?.tasks.find(
-        (t) => t.id === activeTaskIdRef.current
-      );
-      if (!liveBlock || !liveTask) {
-        // terminate if block or task no longer exist
-        terminateSession();
-        return;
-      }
+      // calculate elapsed time
+      elapsedRef.current =
+        (Date.now() - (startTimeRef.current ?? Date.now())) / 1000;
+      setElapsed(elapsedRef.current);
 
-      const total = liveTask.duration * 60;
-      const nextElapsed = Math.min(elapsedRef.current + 1, total);
-      const nextRemaining = Math.max(total - nextElapsed, 0);
-      const nextProgress = total === 0 ? 0 : (nextElapsed / total) * 100;
+      // calculate remaining time
+      remainingRef.current = Math.max(total - elapsedRef.current, 0);
+      setRemaining(remainingRef.current);
 
-      elapsedRef.current = nextElapsed;
-      remainingRef.current = nextRemaining;
+      // calculate progress
+      const progress = total === 0 ? 0 : (elapsedRef.current / total) * 100;
+      setProgress(progress);
 
-      // Push update to reducer
-      dispatch({
-        type: "UPDATE_TASK",
-        payload: {
-          blockId: liveBlock.id,
-          taskId: liveTask.id,
-          data: {
-            elapsed: nextElapsed,
-            remaining: nextRemaining,
-            progress: nextProgress,
-          },
-        },
-      });
-
-      // If completed, finalize
-      if (nextElapsed >= total) {
-        // stop interval
-        clearInterval(intervalRef.current!);
-        intervalRef.current = null;
-
-        // update task as completed
+      if (elapsedRef.current >= total) {
+        // complete task
         dispatch({
           type: "UPDATE_TASK",
           payload: {
-            blockId: liveBlock.id,
-            taskId: liveTask.id,
+            blockId: block.id,
+            taskId: task.id,
             data: {
               completed: true,
               elapsed: total,
@@ -119,41 +110,24 @@ export const SessionProvider = ({
             },
           },
         });
+
+        clearInterval(intervalRef.current!);
+        intervalRef.current = null;
       }
-
-      const currentIndex = liveBlock.tasks.findIndex(
-        (t) => t.id === liveTask.id
-      );
-      const nextTask = liveBlock.tasks[currentIndex + 1];
-
-      if (nextTask) {
-        setActiveTaskId(nextTask.id);
-
-        elapsedRef.current = nextTask.elapsed ?? 0;
-        remainingRef.current = nextTask.remaining ?? nextTask.duration * 60;
-
-        startInterval(liveBlock, nextTask.id);
-        return;
-      }
-
-      dispatch({
-        type: "UPDATE_BLOCK",
-        payload: { ...liveBlock, completed: true, status: "idle" },
-      });
-
-      terminateSession();
     }, 1000);
   };
 
   const start = (block: Block) => {
+    // 1. Register active session
+    setActiveBlock(block);
+
     const firstTask = block.tasks.find((t) => !t.completed);
     if (!firstTask) return;
 
-    // 1. Register active session
-    setActiveBlock(block);
     setActiveTaskId(firstTask.id);
     activeTaskIdRef.current = firstTask.id;
 
+    // 2. Persist session
     localStorage.setItem(
       SESSION_KEY,
       JSON.stringify({
@@ -162,20 +136,13 @@ export const SessionProvider = ({
       })
     );
 
-    // 3. Initialize refs
-    const total = firstTask.duration * 60;
-
-    elapsedRef.current = firstTask.elapsed ?? 0;
-    remainingRef.current =
-      firstTask.remaining ?? Math.max(total - elapsedRef.current, 0);
-
-    // 4. Update block status
+    // 3. Update block status
     dispatch({
       type: "UPDATE_BLOCK",
       payload: { ...block, status: "running" },
     });
 
-    // 5. Start interval
+    // 4. Start interval
     startInterval(block, firstTask.id);
   };
 
@@ -271,7 +238,7 @@ export const SessionProvider = ({
 
         dispatch({
           type: "UPDATE_BLOCK",
-          payload: { ...block, status: "running" },
+          payload: { ...block, status: "paused" },
         });
       } else {
         localStorage.removeItem(SESSION_KEY);
@@ -306,6 +273,7 @@ export const SessionProvider = ({
         start,
         pause,
         reset,
+        sessionTime: { elapsed, remaining, progress }
       }}
     >
       {children}
