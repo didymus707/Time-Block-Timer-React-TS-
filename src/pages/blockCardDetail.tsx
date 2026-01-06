@@ -17,15 +17,18 @@ export const CardDetails = () => {
   const { id } = useParams<{ id: string }>();
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
-  const {activeBlock, start, pause, reset } = useSession();
+  const {
+    activeBlock,
+    start,
+    pause,
+    reset,
+    sessionTime: { elapsed, remaining, progress },
+  } = useSession();
 
   const activeTask = activeBlock
     ? activeBlock.tasks.find((t) => !t.completed) ?? null
     : null;
-
-  const taskElapsed = activeTask?.elapsed ?? 0;
-  const remainingTask = activeTask?.remaining ?? 0;
-
+    
   const sessionElapsed =
     activeBlock?.tasks.reduce((acc, t) => acc + t.elapsed, 0) ?? 0;
 
@@ -129,10 +132,10 @@ export const CardDetails = () => {
           {activeTask && (
             <TimeProgress
               label="Task Progress"
-              remaining={remainingTask}
+              remaining={remaining}
               planned={activeTask.duration * 60}
-              elapsed={taskElapsed}
-              progress={(taskElapsed / (activeTask.duration * 60)) * 100}
+              elapsed={elapsed}
+              progress={progress}
               variant="task"
             />
           )}
