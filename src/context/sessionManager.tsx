@@ -84,7 +84,7 @@ export const SessionProvider = ({
     intervalRef.current = setInterval(() => {
       // calculate elapsed time
       elapsedRef.current =
-        ((Date.now() - (startTimeRef.current ?? Date.now())) / 1000);
+        (Date.now() - (startTimeRef.current ?? Date.now())) / 1000;
       setElapsed(Math.floor(elapsedRef.current));
 
       // calculate remaining time
@@ -113,6 +113,35 @@ export const SessionProvider = ({
 
         clearInterval(intervalRef.current!);
         intervalRef.current = null;
+
+        const taskIndex = block.tasks.findIndex((t) => t.id === task.id);
+        const nextTask = block.tasks[taskIndex + 1];
+
+        if (nextTask && !nextTask.completed) {
+          // start next task
+          setActiveTaskId(nextTask.id);
+          startInterval(block, nextTask.id);
+
+          // persist session
+          localStorage.setItem(
+            SESSION_KEY,
+            JSON.stringify({
+              blockId: block.id,
+              taskId: nextTask.id,
+              isPaused: false,
+              lastStartedAt: Date.now(),
+            })
+          );
+        } else {
+          // complete block
+          dispatch({
+            type: "UPDATE_BLOCK",
+            payload: { ...block, status: "completed" },
+          });
+
+          // terminate session
+          terminateSession();
+        }
       }
     }, 1000);
   };
@@ -133,6 +162,7 @@ export const SessionProvider = ({
       JSON.stringify({
         blockId: block.id,
         taskId: firstTask.id,
+        lastStartedAt: Date.now(),
       })
     );
 
@@ -218,14 +248,14 @@ export const SessionProvider = ({
 
   // restoring from local storage on mount
   useEffect(() => {
-    if (hasRestoredRef.current) return;
+    if (hasRestoredRef.current || blocks.length === 0) return;
     hasRestoredRef.current = true;
 
     const stored = localStorage.getItem(SESSION_KEY);
     if (!stored) return;
 
     try {
-      const { blockId, taskId } = JSON.parse(stored);
+      const { blockId, taskId, lastStartedAt } = JSON.parse(stored);
       const block = blocks.find((b) => b.id === blockId);
       const task = block?.tasks.find((b) => b.id === taskId);
 
@@ -233,8 +263,13 @@ export const SessionProvider = ({
         setActiveBlock(block);
         setActiveTaskId(taskId);
 
-        elapsedRef.current = task.elapsed ?? 0;
+        const now = Date.now();
+        const timeSpentSinceLastStartInSecs = (now - lastStartedAt) / 1000;
+        const updatedElapsed =
+          (task.elapsed ?? 0) + timeSpentSinceLastStartInSecs;
+        elapsedRef.current = updatedElapsed;
         remainingRef.current = task.remaining ?? task.duration * 60;
+        startTimeRef.current = now - updatedElapsed * 1000;
 
         dispatch({
           type: "UPDATE_BLOCK",
@@ -273,7 +308,7 @@ export const SessionProvider = ({
         start,
         pause,
         reset,
-        sessionTime: { elapsed, remaining, progress }
+        sessionTime: { elapsed, remaining, progress },
       }}
     >
       {children}
