@@ -16,8 +16,8 @@ const root = document.getElementById("root")!;
 createRoot(root).render(
   <StrictMode>
     <BrowserRouter>
-      <SessionProvider>
-        <BlockProvider>
+      <BlockProvider>
+        <SessionProvider>
           <BlockUIProvider>
             <Routes>
               <Route path="/" element={<App />}>
@@ -26,8 +26,8 @@ createRoot(root).render(
               </Route>
             </Routes>
           </BlockUIProvider>
-        </BlockProvider>
-      </SessionProvider>
+        </SessionProvider>
+      </BlockProvider>
     </BrowserRouter>
   </StrictMode>
 );

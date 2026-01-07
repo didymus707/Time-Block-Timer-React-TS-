@@ -19,7 +19,7 @@ export const SessionProvider = ({
   const [progress, setProgress] = useState<number>(0);
   const [remaining, setRemaining] = useState<number>(0);
 
-  const activeBlock = blocks.find(b => b.id === activeBlockId) || null;
+  const activeBlock = blocks.find((b) => b.id === activeBlockId) || null;
   const activeTask = activeBlock
     ? activeBlock.tasks.find((t) => t.id === activeTaskId) ?? null
     : null;
@@ -31,7 +31,7 @@ export const SessionProvider = ({
   const elapsedRef = useRef<number>(0);
   const remainingRef = useRef<number>(0);
   const activeTaskIdRef = useRef<string | null>(null);
-  const startTimeRef = useRef<number | null>(null);
+  const virtualTimerRef = useRef<number | null>(null);
 
   const terminateSession = () => {
     // stop the interval
@@ -45,10 +45,10 @@ export const SessionProvider = ({
     remainingRef.current = 0;
 
     // reset block status if it exists
-    if (activeBlock) {
+    if (activeBlockId) {
       dispatch({
         type: "UPDATE_BLOCK",
-        payload: { ...activeBlock, status: "idle" },
+        payload: { id: activeBlockId, status: "idle" },
       });
     }
 
@@ -75,9 +75,9 @@ export const SessionProvider = ({
     // mental note:
     // actualTime is Date.now()
     // timeAlreadySpent is elapsedRef.current or task.elapsed as at when starting/resuming
-    // virtualTime which is the onTickTime or startTimeRef.current is the actualTime - timeAlreadySpent
+    // virtualTimerRef which is the onTickTime or elapsed.current is the actualTime - timeAlreadySpent
     elapsedRef.current = task.elapsed ?? 0;
-    startTimeRef.current = Date.now() - elapsedRef.current * 1000;
+    virtualTimerRef.current = Date.now() - elapsedRef.current * 1000;
     remainingRef.current = task.remaining ?? task.duration * 60;
     const total = task.duration * 60;
 
@@ -85,7 +85,7 @@ export const SessionProvider = ({
     intervalRef.current = setInterval(() => {
       // calculate elapsed time
       elapsedRef.current =
-        (Date.now() - (startTimeRef.current ?? Date.now())) / 1000;
+        (Date.now() - (virtualTimerRef.current ?? Date.now())) / 1000;
       setElapsed(Math.floor(elapsedRef.current));
 
       // calculate remaining time
@@ -179,8 +179,9 @@ export const SessionProvider = ({
   };
 
   const pause = () => {
-    if (!intervalRef.current || !activeTaskId || !activeBlock) return;
-    const activeTask = activeBlock.tasks.find((t) => t.id === activeTaskId);
+    const currentBlock = blocks.find((b) => b.id === activeBlockId);
+    if (!intervalRef.current || !activeTaskId || !currentBlock) return;
+    const activeTask = currentBlock.tasks.find((t) => t.id === activeTaskId);
     if (!activeTask) return;
 
     // 1. Stop the global interval
@@ -194,7 +195,7 @@ export const SessionProvider = ({
     dispatch({
       type: "UPDATE_TASK",
       payload: {
-        blockId: activeBlock.id,
+        blockId: currentBlock.id,
         taskId: activeTask.id,
         data: {
           elapsed: elapsedRef.current,
@@ -207,7 +208,7 @@ export const SessionProvider = ({
     // 3. Update block status
     dispatch({
       type: "UPDATE_BLOCK",
-      payload: { ...activeBlock, status: "paused" },
+      payload: { ...currentBlock, status: "paused" },
     });
 
     // 4. Persist session state
@@ -245,7 +246,7 @@ export const SessionProvider = ({
       type: "UPDATE_TASK",
       payload: {
         blockId: activeBlock.id,
-        taskId: activeTaskId ?? '',
+        taskId: activeTaskId ?? "",
         data: {
           completed: false,
           elapsed: 0,
@@ -291,14 +292,13 @@ export const SessionProvider = ({
           : (task.elapsed ?? 0) + timeSpentSinceLastStartInSecs;
         elapsedRef.current = updatedElapsed;
         remainingRef.current = task.remaining ?? task.duration * 60;
-        startTimeRef.current = now - updatedElapsed * 1000;
+        virtualTime.current = now - updatedElapsed * 1000;
 
         setElapsed(Math.floor(elapsedRef.current));
         setRemaining(Math.floor(remainingRef.current));
 
         const total = task.duration * 60;
-        const progress =
-          total === 0 ? 0 : (elapsedRef.current / total) * 100;
+        const progress = total === 0 ? 0 : (elapsedRef.current / total) * 100;
         setProgress(progress);
 
         if (!isPaused) {
@@ -316,6 +316,7 @@ export const SessionProvider = ({
     } catch {
       localStorage.removeItem(SESSION_KEY);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [blocks]);
 
   // terminate session if block or task no longer exist
@@ -340,6 +341,8 @@ export const SessionProvider = ({
     <SessionContext.Provider
       value={{
         activeBlock,
+        activeBlockId,
+        activeTaskId,
         start,
         pause,
         reset,

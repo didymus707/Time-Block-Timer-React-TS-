@@ -35,9 +35,9 @@ export interface Task {
 
 export type Action =
   | { type: "ADD_BLOCK"; payload: Block }
-  | { type: "UPDATE_BLOCK"; payload: Block }
   | { type: "DELETE_BLOCK"; payload: Block }
   | { type: "TOGGLE_STATUS"; payload: { id: string } }
+  | { type: "UPDATE_BLOCK"; payload: {id: string} & Partial<Block> }
   | { type: "UPDATE_PROGRESS"; payload: { id: string; progress: number } }
   | { type: "ADD_TASK_TO_BLOCK"; payload: { blockId: string; task: Task } }
   | {
@@ -64,6 +64,8 @@ export interface BlockUIContextType {
 
 export interface SessionContextType {
   activeBlock: Block | null;
+  activeBlockId: string | null;
+  activeTaskId: string | null;    
   start: (block: Block) => void;
   pause: () => void;
   reset: () => void;

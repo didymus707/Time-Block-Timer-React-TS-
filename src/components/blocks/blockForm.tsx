@@ -74,9 +74,9 @@ export const BlockForm: React.FC<BlockFormProps> = ({
     const newBlock: Block = {
       id: blockId,
       name: sessionName || "Untitled Block",
-      duration: totalDuration,
+      plannedDuration: totalDuration,
       tasks: tasksWithBlockId,
-      completed: false,
+      actualDuration: 0,
       status: "idle",
       createdAt: new Date().toISOString(),
       pauses: [],
@@ -169,7 +169,7 @@ export const BlockForm: React.FC<BlockFormProps> = ({
                   onChange={() => setShowTask(!showTask)}
                   className="relative h-6 w-12 appearance-none rounded-full bg-neutral-300 transition-colors duration-300 
                               before:pointer-events-none before:absolute before:h-6 before:w-6 before:rounded-full before:content-['']
-                              after:absolute after:z-[2] after:mt-[0.1rem] after:ml-[0.1rem]
+                              after:absolute after:z-2 after:mt-[0.1rem] after:ml-[0.1rem]
                               after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-transform after:duration-300 after:content-['']
                             checked:bg-black checked:after:translate-x-6
   "

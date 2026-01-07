@@ -1,7 +1,7 @@
 import Button from "../primitives/button";
 
 interface Props {
-  status: "idle" | "running" | "paused" | string;
+  status: "idle" | "running" | "paused" | 'completed';
   onStart: () => void;
   onPause: () => void;
   onReset: () => void;
