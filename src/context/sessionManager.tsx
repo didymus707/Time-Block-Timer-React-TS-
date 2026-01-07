@@ -292,7 +292,7 @@ export const SessionProvider = ({
           : (task.elapsed ?? 0) + timeSpentSinceLastStartInSecs;
         elapsedRef.current = updatedElapsed;
         remainingRef.current = task.remaining ?? task.duration * 60;
-        virtualTime.current = now - updatedElapsed * 1000;
+        virtualTimerRef.current = now - updatedElapsed * 1000;
 
         setElapsed(Math.floor(elapsedRef.current));
         setRemaining(Math.floor(remainingRef.current));
