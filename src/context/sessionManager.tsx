@@ -162,6 +162,7 @@ export const SessionProvider = ({
       JSON.stringify({
         blockId: block.id,
         taskId: firstTask.id,
+        isPaused: false,
         lastStartedAt: Date.now(),
       })
     );
@@ -177,7 +178,9 @@ export const SessionProvider = ({
   };
 
   const pause = () => {
-    if (!intervalRef.current || !activeTask || !activeBlock) return;
+    if (!intervalRef.current || !activeTaskId || !activeBlock) return;
+    const activeTask = activeBlock.tasks.find((t) => t.id === activeTaskId);
+    if (!activeTask) return;
 
     // 1. Stop the global interval
     clearInterval(intervalRef.current);
@@ -205,6 +208,20 @@ export const SessionProvider = ({
       type: "UPDATE_BLOCK",
       payload: { ...activeBlock, status: "paused" },
     });
+
+    // 4. Persist session state
+    const stored = localStorage.getItem(SESSION_KEY);
+    if (stored) {
+      const data = JSON.parse(stored);
+      localStorage.setItem(
+        SESSION_KEY,
+        JSON.stringify({
+          ...data,
+          isPaused: true,
+          lastElapsed: elapsedRef.current,
+        })
+      );
+    }
   };
 
   const reset = () => {
@@ -227,7 +244,7 @@ export const SessionProvider = ({
       type: "UPDATE_TASK",
       payload: {
         blockId: activeBlock.id,
-        taskId: activeTask.id,
+        taskId: activeTaskId ?? '',
         data: {
           completed: false,
           elapsed: 0,
@@ -255,7 +272,8 @@ export const SessionProvider = ({
     if (!stored) return;
 
     try {
-      const { blockId, taskId, lastStartedAt } = JSON.parse(stored);
+      const { blockId, taskId, lastStartedAt, isPaused, lastElapsed } =
+        JSON.parse(stored);
       const block = blocks.find((b) => b.id === blockId);
       const task = block?.tasks.find((b) => b.id === taskId);
 
@@ -265,15 +283,31 @@ export const SessionProvider = ({
 
         const now = Date.now();
         const timeSpentSinceLastStartInSecs = (now - lastStartedAt) / 1000;
-        const updatedElapsed =
-          (task.elapsed ?? 0) + timeSpentSinceLastStartInSecs;
+        // 1. If it was paused when they closed it, use the saved elapsed time
+        // 2. If it was running, calculate the gap
+        const updatedElapsed = isPaused
+          ? lastElapsed
+          : (task.elapsed ?? 0) + timeSpentSinceLastStartInSecs;
         elapsedRef.current = updatedElapsed;
         remainingRef.current = task.remaining ?? task.duration * 60;
         startTimeRef.current = now - updatedElapsed * 1000;
 
+        setElapsed(Math.floor(elapsedRef.current));
+        setRemaining(Math.floor(remainingRef.current));
+
+        const total = task.duration * 60;
+        const progress =
+          total === 0 ? 0 : (elapsedRef.current / total) * 100;
+        setProgress(progress);
+
+        if (!isPaused) {
+          // start interval if it was not paused
+          startInterval(block, taskId);
+        }
+
         dispatch({
           type: "UPDATE_BLOCK",
-          payload: { ...block, status: "paused" },
+          payload: { ...block, status: isPaused ? "paused" : "running" },
         });
       } else {
         localStorage.removeItem(SESSION_KEY);
