@@ -13,12 +13,13 @@ export const SessionProvider = ({
   const SESSION_KEY = "active-session";
 
   // GLOBAL STATE
-  const [activeBlock, setActiveBlock] = useState<Block | null>(null);
+  const [activeBlockId, setActiveBlockId] = useState<string | null>(null);
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
   const [elapsed, setElapsed] = useState<number>(0);
   const [progress, setProgress] = useState<number>(0);
   const [remaining, setRemaining] = useState<number>(0);
 
+  const activeBlock = blocks.find(b => b.id === activeBlockId) || null;
   const activeTask = activeBlock
     ? activeBlock.tasks.find((t) => t.id === activeTaskId) ?? null
     : null;
@@ -52,7 +53,7 @@ export const SessionProvider = ({
     }
 
     // clear session state
-    setActiveBlock(null);
+    setActiveBlockId(null);
     setActiveTaskId(null);
     activeTaskIdRef.current = null;
 
@@ -148,7 +149,7 @@ export const SessionProvider = ({
 
   const start = (block: Block) => {
     // 1. Register active session
-    setActiveBlock(block);
+    setActiveBlockId(block.id);
 
     const firstTask = block.tasks.find((t) => !t.completed);
     if (!firstTask) return;
@@ -278,7 +279,7 @@ export const SessionProvider = ({
       const task = block?.tasks.find((b) => b.id === taskId);
 
       if (block && task && !task.completed && block.tasks.length > 0) {
-        setActiveBlock(block);
+        setActiveBlockId(block.id);
         setActiveTaskId(taskId);
 
         const now = Date.now();
