@@ -20,9 +20,6 @@ export const SessionProvider = ({
   const [remaining, setRemaining] = useState<number>(0);
 
   const activeBlock = blocks.find((b) => b.id === activeBlockId) || null;
-  const activeTask = activeBlock
-    ? activeBlock.tasks.find((t) => t.id === activeTaskId) ?? null
-    : null;
 
   const hasRestoredRef = useRef(false);
 
@@ -227,7 +224,9 @@ export const SessionProvider = ({
   };
 
   const reset = () => {
-    if (!activeTask || !activeBlock) return;
+    const currentBlock = blocks.find((b) => b.id === activeBlockId);
+    const currentTask = currentBlock?.tasks.find((t) => t.id === activeTaskId);
+    if (!currentTask || !currentBlock) return;
 
     // 1. Stop interval
     if (intervalRef.current) {
@@ -235,18 +234,23 @@ export const SessionProvider = ({
       intervalRef.current = null;
     }
 
-    const total = activeTask.duration * 60;
+    const total = currentTask.duration * 60;
 
     // 2. Reset refs
     elapsedRef.current = 0;
     remainingRef.current = total;
+    virtualTimerRef.current = Date.now();
+
+    setElapsed(0);
+    setProgress(0);
+    setRemaining(total);
 
     // 3. Reset task in reducer
     dispatch({
       type: "UPDATE_TASK",
       payload: {
-        blockId: activeBlock.id,
-        taskId: activeTaskId ?? "",
+        blockId: currentBlock.id,
+        taskId: currentTask.id ?? "",
         data: {
           completed: false,
           elapsed: 0,
@@ -259,10 +263,22 @@ export const SessionProvider = ({
     // 4. Reset block status
     dispatch({
       type: "UPDATE_BLOCK",
-      payload: { ...activeBlock, status: "idle" },
+      payload: { id: currentBlock.id, status: "idle" },
     });
 
-    localStorage.removeItem(SESSION_KEY);
+    const stored = localStorage.getItem(SESSION_KEY);
+    if (stored) {
+      const data = JSON.parse(stored);
+      localStorage.setItem(
+        SESSION_KEY,
+        JSON.stringify({
+          ...data,
+          isPaused: true,
+          lastElapsed: 0,
+          lastStartedAt: Date.now(),
+        })
+      );
+    }
   };
 
   // restoring from local storage on mount
