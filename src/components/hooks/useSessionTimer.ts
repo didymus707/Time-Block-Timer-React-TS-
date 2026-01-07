@@ -185,10 +185,7 @@ export const useSessionTimer = ({
     intervalRef.current = null;
 
     const t = activeTaskRef.current;
-    console.log("pause t before dispatching UPDATE_BLOCK=====>", {
-      t,
-      freshBlock,
-    });
+
     if (t) {
       dispatch({
         type: "UPDATE_TASK",
@@ -211,7 +208,6 @@ export const useSessionTimer = ({
       type: "UPDATE_BLOCK",
       payload: { ...freshBlock, status: "paused" },
     });
-    console.log("pause t after dispatching UPDATE_BLOCK=====>", { t, freshBlock });
   };
 
   // Reset Task Timer
@@ -267,8 +263,6 @@ export const useSessionTimer = ({
     });
 
     // defensive log (optional) to verify reset happened
-    console.log("[RESET] activeTaskId:", activeTaskId, "initialRemaining:", initialRemaining);
-    console.log("[RESET] updatedTasks:", updatedTasks);
   };
 
   // Cleanup interval on unmount
