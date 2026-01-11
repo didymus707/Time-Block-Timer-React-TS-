@@ -1,4 +1,4 @@
-import { Block, Task } from "../../types";
+import type { Block, Task } from "../../types";
 import { useBlock } from "../../context/blockContext";
 import { useSession } from "../../context/sessionContext";
 
@@ -27,7 +27,7 @@ export const useDerivedTime = (targetBlocks: Block | Block[]) => {
   const isActiveInTarget = blockArray.some(
     (block) =>
       block.id === activeBlockId &&
-      block.tasks.some((task) => task.id === activeTaskId)
+      block.tasks.some((task: Task) => task.id === activeTaskId)
   );
 
   // if block or task is active, find that specific task in the main blocks state, subtract its static time, and add the sessionTime.elapsed pulse.
@@ -40,8 +40,11 @@ export const useDerivedTime = (targetBlocks: Block | Block[]) => {
 
     return {
       elapsed: staticTotalElapsed - savedElapsed + sessionTime.elapsed,
-      remaining: staticTotalRemaining - savedRemaining + sessionTime.remaining,
-    }
+      remaining: Math.max(
+        0,
+        staticTotalRemaining - savedRemaining + sessionTime.remaining
+      ),
+    };
   }
 
   return {
