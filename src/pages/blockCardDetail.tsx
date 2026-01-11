@@ -9,11 +9,12 @@ import { TaskModal } from "../components/modals/task";
 import { useSession } from "../context/sessionContext";
 import { TimeProgress } from "../components/blocks/timeProgress";
 import { SessionControl } from "../components/blocks/sessionControl";
+import { useDerivedTime } from "../components/hooks/useDerivedTime";
 
 export const CardDetails = () => {
-  const { blocks, dispatch } = useBlock();
   const navigate = useNavigate();
   const goBack = () => navigate(-1);
+  const { blocks, dispatch } = useBlock();
   const { id } = useParams<{ id: string }>();
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
@@ -24,18 +25,13 @@ export const CardDetails = () => {
     reset,
     sessionTime: { elapsed, remaining, progress },
   } = useSession();
+  const block = blocks.find((b) => b.id === id);
+  const { elapsed: sessionElapsed, remaining: sessionRemaining } =
+    useDerivedTime(block ? block : []);
 
   const activeTask = activeBlock
     ? activeBlock.tasks.find((t) => !t.completed) ?? null
     : null;
-    
-  const sessionElapsed =
-    activeBlock?.tasks.reduce((acc, t) => acc + t.elapsed, 0) ?? 0;
-
-  const sessionRemaining =
-    activeBlock?.tasks.reduce((acc, t) => acc + t.remaining, 0) ?? 0;
-
-  const block = blocks.find((b) => b.id === id);
 
   if (!block) {
     return <div className="p-6 text-gray-600">Block not found.</div>;
@@ -109,9 +105,9 @@ export const CardDetails = () => {
           <TimeProgress
             label="Session Progress"
             elapsed={sessionElapsed}
-            planned={block.duration * 60}
+            planned={block.plannedDuration * 60}
             remaining={sessionRemaining}
-            progress={(sessionElapsed / (block.duration * 60)) * 100}
+            progress={(sessionElapsed / (block.plannedDuration * 60)) * 100}
             variant="session"
           />
         )}
