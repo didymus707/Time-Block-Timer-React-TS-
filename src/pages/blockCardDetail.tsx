@@ -10,6 +10,7 @@ import { useSession } from "../context/sessionContext";
 import { TimeProgress } from "../components/blocks/timeProgress";
 import { SessionControl } from "../components/blocks/sessionControl";
 import { useDerivedTime } from "../components/hooks/useDerivedTime";
+import { FocusMode } from "../components/blocks/focusMode";
 
 export const CardDetails = () => {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ export const CardDetails = () => {
   const { blocks, dispatch } = useBlock();
   const { id } = useParams<{ id: string }>();
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [isFocusMode, setIsFocusMode] = useState<boolean>(false);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const {
     activeBlock,
@@ -185,6 +187,8 @@ export const CardDetails = () => {
         isOpen={isTaskModalOpen}
         onClose={closeTaskModal}
       />
+
+      {isFocusMode && <FocusMode onClose={() => setIsFocusMode(false)} />}
     </div>
   );
 };
