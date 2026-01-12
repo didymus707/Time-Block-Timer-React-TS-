@@ -154,6 +154,8 @@ export const SessionProvider = ({
     setActiveTaskId(firstTask.id);
     activeTaskIdRef.current = firstTask.id;
 
+    elapsedRef.current = firstTask.elapsed ?? 0;
+
     // 2. Persist session
     localStorage.setItem(
       SESSION_KEY,
