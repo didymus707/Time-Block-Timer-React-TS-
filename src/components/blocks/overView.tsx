@@ -1,11 +1,13 @@
-import type { ReactNode } from "react";
+import { type ReactNode } from "react";
 import { Card } from "../primitives/card";
-import { useBlock } from "../../context/blockContext";
-import { CheckCircle, Clock, Pause, Play, Task } from "../primitives/icons";
 import { TimeProgress } from "./timeProgress";
+import { useBlock } from "../../context/blockContext";
+import { useDerivedTime } from "../hooks/useDerivedTime";
+import { CheckCircle, Clock, Pause, Play, Task } from "../primitives/icons";
 
 export const Overview = () => {
   const { blocks } = useBlock();
+  const { elapsed: appElapsed } = useDerivedTime(blocks);
 
   const total = blocks.length;
   const paused = blocks.filter((b) => b.status === "paused").length;
@@ -17,13 +19,6 @@ export const Overview = () => {
   );
   const totalTasks = blocks.reduce((acc, block) => acc + block.tasks.length, 0);
 
-  let elapsed = 0;
-  for (const block of blocks) {
-    for (const task of block.tasks) {
-      elapsed += task.elapsed;
-    }
-  }
-
   let totalPlanned = 0;
   for (const block of blocks) {
     for (const task of block.tasks) {
@@ -31,7 +26,7 @@ export const Overview = () => {
     }
   }
 
-  const progress = (elapsed / (totalPlanned * 60)) * 100 || 0;
+  const progress = (appElapsed / (totalPlanned * 60)) * 100 || 0;
 
   return (
     <>
@@ -75,8 +70,8 @@ export const Overview = () => {
         {/*  PROGRESS BAR  */}
         <TimeProgress
           label="Time Progress"
-          elapsed={elapsed}
-          planned={(totalPlanned * 60)}
+          elapsed={appElapsed}
+          planned={totalPlanned * 60}
           progress={progress}
           variant="total"
         />
