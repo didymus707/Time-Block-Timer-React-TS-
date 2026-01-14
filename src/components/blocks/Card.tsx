@@ -47,7 +47,7 @@ export const BlockCard = ({ block }: BlockCardProps) => {
         <div className="text-sm text-gray-400 flex items-center gap-1">
           <div className="duration flex items-center gap-1">
             <Clock color="red" />
-            <span>{remaining / 60} min</span>
+            <span>{Math.floor(remaining / 60)} min</span>
           </div>
           <div className="tasks flex items-center gap-1 ml-4">
             <Task color="purple" />
@@ -60,7 +60,7 @@ export const BlockCard = ({ block }: BlockCardProps) => {
             style={{ width: `${progress}%` }}
           />
         </div>
-        <p className="text-xs text-gray-400 mt-1">{progress}% complete</p>
+        <p className="text-xs text-gray-400 mt-1">{Math.floor(progress)}% complete</p>
 
         <ul className="text-sm text-gray-400 mt-2">
           {block.tasks.slice(0, 3).map((t, i) => (

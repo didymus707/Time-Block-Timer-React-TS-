@@ -18,6 +18,7 @@ export const SessionProvider = ({
   const [elapsed, setElapsed] = useState<number>(0);
   const [progress, setProgress] = useState<number>(0);
   const [remaining, setRemaining] = useState<number>(0);
+  const blocksRef = useRef<Block[]>(blocks);
 
   const activeBlock = blocks.find((b) => b.id === activeBlockId) || null;
 
@@ -58,24 +59,66 @@ export const SessionProvider = ({
     localStorage.removeItem(SESSION_KEY);
   };
 
+  const start = (block: Block) => {
+    const currentBlock =
+      blocksRef.current.find((b) => b.id === block.id) || block;
+    // 1. Register active session
+    setActiveBlockId(currentBlock.id);
+
+    const firstTask = currentBlock.tasks.find((t) => !t.completed);
+    if (!firstTask) return;
+
+    setActiveTaskId(firstTask.id);
+    activeTaskIdRef.current = firstTask.id;
+
+    elapsedRef.current = firstTask.elapsed || 0;
+    console.log("resuming task from", {
+      name: firstTask.name,
+      elapsed: firstTask.elapsed,
+      task: firstTask,
+    });
+
+    // 2. Persist session
+    localStorage.setItem(
+      SESSION_KEY,
+      JSON.stringify({
+        blockId: currentBlock.id,
+        taskId: firstTask.id,
+        isPaused: false,
+        lastStartedAt: Date.now(),
+      })
+    );
+
+    // 3. Update block status
+    dispatch({
+      type: "UPDATE_BLOCK",
+      payload: { ...currentBlock, status: "running" },
+    });
+
+    // 4. Start interval
+    startInterval(currentBlock, firstTask.id);
+  };
+
   const startInterval = (block: Block, taskId: string) => {
+    console.log("what Block am i?, CurrentBlock", block);
     // clear any existing interval
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
     activeTaskIdRef.current = taskId;
-    const task = block.tasks.find((t) => t.id === taskId);
+    const activeBlock = blocksRef.current.find((b) => b.id === block.id);
+    if (!activeBlock) return;
+    const task = activeBlock.tasks.find((t) => t.id === taskId);
     if (!task) return;
+    console.log("startInterval task", { task });
 
     // initialize refs
     // mental note:
     // actualTime is Date.now()
     // timeAlreadySpent is elapsedRef.current or task.elapsed as at when starting/resuming
     // virtualTimerRef which is the onTickTime or elapsed.current is the actualTime - timeAlreadySpent
-    elapsedRef.current = task.elapsed ?? 0;
     virtualTimerRef.current = Date.now() - elapsedRef.current * 1000;
-    remainingRef.current = task.remaining ?? task.duration * 60;
     const total = task.duration * 60;
 
     // start new interval
@@ -113,12 +156,22 @@ export const SessionProvider = ({
         intervalRef.current = null;
 
         const taskIndex = block.tasks.findIndex((t) => t.id === task.id);
+        console.log("currentTaskIndex", taskIndex);
         const nextTask = block.tasks[taskIndex + 1];
 
         if (nextTask && !nextTask.completed) {
           // start next task
+          const newBlock = blocksRef.current.find((b) => b.id === block.id);
+          if (!newBlock) return;
           setActiveTaskId(nextTask.id);
-          startInterval(block, nextTask.id);
+          activeTaskIdRef.current = nextTask.id;
+
+          console.log("moving to next task", {
+            name: nextTask.name,
+            elapsed: nextTask.elapsed,
+          });
+          setActiveTaskId(nextTask.id);
+          startInterval(newBlock, nextTask.id);
 
           // persist session
           localStorage.setItem(
@@ -144,37 +197,44 @@ export const SessionProvider = ({
     }, 1000);
   };
 
-  const start = (block: Block) => {
-    // 1. Register active session
-    setActiveBlockId(block.id);
+  const resume = (block: Block, taskId: string) => {
+    // get from local storage
+    const stored = localStorage.getItem(SESSION_KEY);
+    let savedElapsed = 0;
 
-    const firstTask = block.tasks.find((t) => !t.completed);
-    if (!firstTask) return;
+    if (stored) {
+      const data = JSON.parse(stored);
+      if (data.taskId === taskId) {
+        savedElapsed = data.lastElapsed || 0;
+      }
+    }
 
-    setActiveTaskId(firstTask.id);
-    activeTaskIdRef.current = firstTask.id;
+    const currentBlock =
+      blocksRef.current.find((b) => b.id === block.id) || block;
+    const taskToResume = currentBlock.tasks.find((t) => t.id === taskId);
+    if (!taskToResume) return;
 
-    elapsedRef.current = firstTask.elapsed ?? 0;
+    console.log("debugging elapsed", savedElapsed);
 
-    // 2. Persist session
-    localStorage.setItem(
-      SESSION_KEY,
-      JSON.stringify({
-        blockId: block.id,
-        taskId: firstTask.id,
-        isPaused: false,
-        lastStartedAt: Date.now(),
-      })
-    );
+    const finalElapsed = savedElapsed || taskToResume.elapsed || 0;
 
-    // 3. Update block status
+    console.log("debugging final elapsed", finalElapsed);
+
+    setActiveBlockId(currentBlock.id);
+    setActiveTaskId(taskToResume.id);
+
+    activeTaskIdRef.current = taskToResume.id;
+    elapsedRef.current = finalElapsed;
+
+    console.log("debugging elapsed.current", elapsedRef.current);
+    console.log("what is currentBlock", currentBlock);
+
     dispatch({
       type: "UPDATE_BLOCK",
-      payload: { ...block, status: "running" },
+      payload: { ...currentBlock, status: "running" },
     });
 
-    // 4. Start interval
-    startInterval(block, firstTask.id);
+    startInterval(currentBlock, taskId);
   };
 
   const pause = () => {
@@ -189,6 +249,8 @@ export const SessionProvider = ({
 
     const total = activeTask.duration * 60;
     const progress = total === 0 ? 0 : (elapsedRef.current / total) * 100;
+
+    console.log("pause", elapsedRef.current);
 
     // 2. Persist task state
     dispatch({
@@ -283,6 +345,10 @@ export const SessionProvider = ({
     }
   };
 
+  useEffect(() => {
+    blocksRef.current = blocks;
+  }, [blocks]);
+
   // restoring from local storage on mount
   useEffect(() => {
     if (hasRestoredRef.current || blocks.length === 0) return;
@@ -364,6 +430,7 @@ export const SessionProvider = ({
         start,
         pause,
         reset,
+        resume,
         sessionTime: { elapsed, remaining, progress },
       }}
     >
