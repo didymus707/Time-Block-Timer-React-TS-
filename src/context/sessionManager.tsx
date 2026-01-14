@@ -72,11 +72,6 @@ export const SessionProvider = ({
     activeTaskIdRef.current = firstTask.id;
 
     elapsedRef.current = firstTask.elapsed || 0;
-    console.log("resuming task from", {
-      name: firstTask.name,
-      elapsed: firstTask.elapsed,
-      task: firstTask,
-    });
 
     // 2. Persist session
     localStorage.setItem(
@@ -100,7 +95,6 @@ export const SessionProvider = ({
   };
 
   const startInterval = (block: Block, taskId: string) => {
-    console.log("what Block am i?, CurrentBlock", block);
     // clear any existing interval
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
@@ -111,7 +105,6 @@ export const SessionProvider = ({
     if (!activeBlock) return;
     const task = activeBlock.tasks.find((t) => t.id === taskId);
     if (!task) return;
-    console.log("startInterval task", { task });
 
     // initialize refs
     // mental note:
@@ -156,7 +149,7 @@ export const SessionProvider = ({
         intervalRef.current = null;
 
         const taskIndex = block.tasks.findIndex((t) => t.id === task.id);
-        console.log("currentTaskIndex", taskIndex);
+
         const nextTask = block.tasks[taskIndex + 1];
 
         if (nextTask && !nextTask.completed) {
@@ -166,10 +159,6 @@ export const SessionProvider = ({
           setActiveTaskId(nextTask.id);
           activeTaskIdRef.current = nextTask.id;
 
-          console.log("moving to next task", {
-            name: nextTask.name,
-            elapsed: nextTask.elapsed,
-          });
           setActiveTaskId(nextTask.id);
           startInterval(newBlock, nextTask.id);
 
@@ -214,20 +203,13 @@ export const SessionProvider = ({
     const taskToResume = currentBlock.tasks.find((t) => t.id === taskId);
     if (!taskToResume) return;
 
-    console.log("debugging elapsed", savedElapsed);
-
     const finalElapsed = savedElapsed || taskToResume.elapsed || 0;
-
-    console.log("debugging final elapsed", finalElapsed);
 
     setActiveBlockId(currentBlock.id);
     setActiveTaskId(taskToResume.id);
 
     activeTaskIdRef.current = taskToResume.id;
     elapsedRef.current = finalElapsed;
-
-    console.log("debugging elapsed.current", elapsedRef.current);
-    console.log("what is currentBlock", currentBlock);
 
     dispatch({
       type: "UPDATE_BLOCK",
