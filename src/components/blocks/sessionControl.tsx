@@ -5,6 +5,7 @@ interface Props {
   onStart: () => void;
   onPause: () => void;
   onReset: () => void;
+  onResume: () => void;
   hasPausedTask: boolean | null;
 }
 
@@ -13,13 +14,14 @@ export const SessionControl = ({
   onStart,
   onPause,
   onReset,
+  onResume,
   hasPausedTask,
 }: Props) => {
   return (
     <div className="flex justify-center mt-8">
       {hasPausedTask ? (
         <div className="flex gap-3">
-          <Button variant="primary" onClick={onStart}>
+          <Button variant="primary" onClick={onResume}>
             Resume Session
           </Button>
           <Button variant="ghost" onClick={onReset}>

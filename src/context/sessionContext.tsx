@@ -8,6 +8,7 @@ export const SessionContext = createContext<SessionContextType>({
   start: () => {},
   pause: () => {},
   reset: () => {},
+  resume: () => {},
   sessionTime: { elapsed: 0, remaining: 0, progress: 0 },
 });
 

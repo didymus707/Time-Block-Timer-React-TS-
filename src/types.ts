@@ -69,5 +69,6 @@ export interface SessionContextType {
   start: (block: Block) => void;
   pause: () => void;
   reset: () => void;
+  resume: (block: Block, taskId: string) => void;
   sessionTime: { elapsed: number; remaining: number; progress: number };
 }
