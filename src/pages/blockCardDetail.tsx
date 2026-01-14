@@ -8,9 +8,9 @@ import { Clock } from "../components/primitives/icons";
 import { TaskModal } from "../components/modals/task";
 import { useSession } from "../context/sessionContext";
 import { TimeProgress } from "../components/blocks/timeProgress";
-import { SessionControl } from "../components/blocks/sessionControl";
+import { SessionControl } from "../components/blocks/SessionControl";
 import { useDerivedTime } from "../components/hooks/useDerivedTime";
-import { FocusMode } from "../components/blocks/focusMode";
+import { FocusMode } from "../components/blocks/FocusMode";
 
 export const CardDetails = () => {
   const navigate = useNavigate();
@@ -25,6 +25,7 @@ export const CardDetails = () => {
     start,
     pause,
     reset,
+    resume,
     sessionTime: { elapsed, remaining, progress },
   } = useSession();
   const block = blocks.find((b) => b.id === id);
@@ -43,17 +44,15 @@ export const CardDetails = () => {
   const hasPausedTask = isSameBlock && activeTask && block.status === "paused";
 
   const handleStartSession = () => {
-    // Resume case
+    // Fresh start case
+    start(block);
+  };
+
+  const resumeSession = () => {
     if (hasPausedTask && activeBlock && activeTask) {
-      start(activeBlock);
+      resume(activeBlock, activeTask.id);
       return;
     }
-
-    // Fresh start case
-    // const task = getDefaultTask(block);
-    // if (!task) return;
-
-    start(block);
   };
 
   const setActiveTask = (taskId: string) => {
@@ -174,10 +173,11 @@ export const CardDetails = () => {
         </div>
 
         <SessionControl
-          status={block.status}
-          onStart={handleStartSession}
           onPause={pause}
           onReset={reset}
+          status={block.status}
+          onResume={resumeSession}
+          onStart={handleStartSession}
           hasPausedTask={hasPausedTask}
         />
       </Card>
