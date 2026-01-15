@@ -105,6 +105,7 @@ export const SessionProvider = ({
     if (!activeBlock) return;
     const task = activeBlock.tasks.find((t) => t.id === taskId);
     if (!task) return;
+    console.log("current Task", task);
 
     // initialize refs
     // mental note:
@@ -130,6 +131,7 @@ export const SessionProvider = ({
       setProgress(progress);
 
       if (elapsedRef.current >= total) {
+        console.log('I entered this condition, yay!!!')
         // complete task
         dispatch({
           type: "UPDATE_TASK",
@@ -148,19 +150,18 @@ export const SessionProvider = ({
         clearInterval(intervalRef.current!);
         intervalRef.current = null;
 
-        const taskIndex = block.tasks.findIndex((t) => t.id === task.id);
-
-        const nextTask = block.tasks[taskIndex + 1];
+        const freshBlock = blocksRef.current.find((b) => b.id === block.id);
+        if (!freshBlock) return;
+        const taskIndex = freshBlock.tasks.findIndex((t) => t.id === task.id);
+        const nextTask = freshBlock.tasks[taskIndex + 1];
 
         if (nextTask && !nextTask.completed) {
           // start next task
-          const newBlock = blocksRef.current.find((b) => b.id === block.id);
-          if (!newBlock) return;
           setActiveTaskId(nextTask.id);
           activeTaskIdRef.current = nextTask.id;
 
           setActiveTaskId(nextTask.id);
-          startInterval(newBlock, nextTask.id);
+          startInterval(freshBlock, nextTask.id);
 
           // persist session
           localStorage.setItem(
@@ -176,7 +177,7 @@ export const SessionProvider = ({
           // complete block
           dispatch({
             type: "UPDATE_BLOCK",
-            payload: { ...block, status: "completed" },
+            payload: { ...freshBlock, status: "completed" },
           });
 
           // terminate session
