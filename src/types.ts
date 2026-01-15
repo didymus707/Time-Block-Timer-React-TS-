@@ -1,16 +1,24 @@
 export type Status = "idle" | "running" | "paused" | "completed";
 
+export interface PauseEvent {
+  pausedAt: number;
+  resumedAt?: number;
+  reason?: string; // optional user note
+}
+
 export interface Block {
   id: string;
   name: string;
   tasks: Task[];
   status: Status;
-  elapsed: number;
-  duration: number;
-  progress: number;
+  // timeTracking
+  actualDuration: number;
+  plannedDuration: number;
+  // precise tracking
+  startedAt?: number;
+  completedAt?: number;
+  pauses: PauseEvent[];
   createdAt: string;
-  remaining: number;
-  completed: boolean;
   activeTaskId?: string | null;
 }
 
@@ -27,9 +35,9 @@ export interface Task {
 
 export type Action =
   | { type: "ADD_BLOCK"; payload: Block }
-  | { type: "UPDATE_BLOCK"; payload: Block }
   | { type: "DELETE_BLOCK"; payload: Block }
   | { type: "TOGGLE_STATUS"; payload: { id: string } }
+  | { type: "UPDATE_BLOCK"; payload: {id: string} & Partial<Block> }
   | { type: "UPDATE_PROGRESS"; payload: { id: string; progress: number } }
   | { type: "ADD_TASK_TO_BLOCK"; payload: { blockId: string; task: Task } }
   | {
@@ -39,7 +47,9 @@ export type Action =
   | {
       type: "SET_ACTIVE_TASK";
       payload: { blockId: string; taskId: string | null };
-    };
+    }
+  | { type: "PAUSE_BLOCK"; blockId: string }
+  | { type: "RESUME_BLOCK"; blockId: string; reason?: string };
 
 export interface BlockContextType {
   blocks: Block[];
@@ -50,4 +60,15 @@ export interface BlockUIContextType {
   isModalOpen: boolean;
   openModal: () => void;
   closeModal: () => void;
+}
+
+export interface SessionContextType {
+  activeBlock: Block | null;
+  activeBlockId: string | null;
+  activeTaskId: string | null;    
+  start: (block: Block) => void;
+  pause: () => void;
+  reset: () => void;
+  resume: (block: Block, taskId: string) => void;
+  sessionTime: { elapsed: number; remaining: number; progress: number };
 }

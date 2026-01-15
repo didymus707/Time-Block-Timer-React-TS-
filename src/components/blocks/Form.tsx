@@ -15,7 +15,6 @@ export const BlockForm: React.FC<BlockFormProps> = ({
 }: BlockFormProps) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [showTask, setShowTask] = useState<boolean>(true);
-  const [sessionEnded, setSessionEnded] = useState<boolean>(false);
   const [sessionName, setSessionName] = useState<string | undefined>("");
   const [sessionHours, setSessionHours] = useState<string | undefined>(
     undefined
@@ -25,8 +24,10 @@ export const BlockForm: React.FC<BlockFormProps> = ({
   );
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
 
-  const totalDuration =
-    (Number(sessionHours)! * 60 || 0) + (Number(sessionMinutes) || 0);
+  const hours = parseInt(sessionHours || "0", 10);
+  const minutes = parseInt(sessionMinutes || "0", 10);
+
+  const totalDuration = hours * 60 + minutes;
   const totalTaskDuration = tasks.reduce(
     (acc, task) => acc + Number(task.duration),
     0
@@ -60,19 +61,25 @@ export const BlockForm: React.FC<BlockFormProps> = ({
 
     const blockId = crypto.randomUUID();
 
-    const tasksWithBlockId = tasks.map((task) => ({ ...task, blockId }));
+    const tasksWithBlockId = tasks.map((task) => ({
+      ...task,
+      blockId,
+      duration: Number(task.duration),
+      elapsed: 0,
+      remaining: Number(task.duration) * 60,
+      progress: 0,
+      completed: false,
+    }));
 
     const newBlock: Block = {
       id: blockId,
       name: sessionName || "Untitled Block",
-      duration: totalDuration,
+      plannedDuration: totalDuration,
       tasks: tasksWithBlockId,
-      completed: sessionEnded,
-      progress: 0,
-      elapsed: 0,
-      remaining: totalDuration * 60,
+      actualDuration: 0,
       status: "idle",
       createdAt: new Date().toISOString(),
+      pauses: [],
     };
 
     addBlock(newBlock);
@@ -82,7 +89,6 @@ export const BlockForm: React.FC<BlockFormProps> = ({
     setSessionMinutes("");
     setTasks([]);
     setShowTask(false);
-    setSessionEnded(false);
   };
 
   return (
@@ -90,7 +96,7 @@ export const BlockForm: React.FC<BlockFormProps> = ({
       <div className="block-form-wrapper flex justify-center items-center fixed inset-0 bg-black/60 z-50">
         <div
           className="block-form-card bg-white text-gray-900 border-2 border-gray-200 rounded-lg p-6 
-                  w-full sm:w-3/4 md:w-1/2 lg:w-1/2 shadow-lg mx-auto"
+                  w-full sm:w-3/4 md:w-1/2 lg:w-[50%] shadow-lg mx-auto"
         >
           <div className="form-header my-4">
             <div className="flex rounded-lg items-center" onClick={() => {}}>
@@ -163,7 +169,7 @@ export const BlockForm: React.FC<BlockFormProps> = ({
                   onChange={() => setShowTask(!showTask)}
                   className="relative h-6 w-12 appearance-none rounded-full bg-neutral-300 transition-colors duration-300 
                               before:pointer-events-none before:absolute before:h-6 before:w-6 before:rounded-full before:content-['']
-                              after:absolute after:z-[2] after:mt-[0.1rem] after:ml-[0.1rem]
+                              after:absolute after:z-2 after:mt-[0.1rem] after:ml-[0.1rem]
                               after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-transform after:duration-300 after:content-['']
                             checked:bg-black checked:after:translate-x-6
   "
@@ -277,7 +283,7 @@ export const BlockForm: React.FC<BlockFormProps> = ({
                         <p className="text-gray-500 mt-1">
                           {totalTaskDuration === totalDuration
                             ? "Perfect fit!"
-                            : `${remainingTime} m remaining`}
+                            : `${remainingTime}m remaining`}
                         </p>
                       )}
                     </div>

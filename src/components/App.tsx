@@ -1,7 +1,7 @@
 import type { Block } from "../types";
 import { Add } from "./primitives/icons";
 import { Link, Outlet } from "react-router";
-import { BlockForm } from "./blocks/blockForm";
+import { BlockForm } from "./blocks/Form";
 import { ToastContainer, toast } from "react-toastify";
 import { useBlock, useBlockUI } from "../context/blockContext";
 

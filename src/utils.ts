@@ -1,3 +1,5 @@
+import type { Block, Task } from "./types";
+
 export const formatHM = (time: number): string => {
   const hours = Math.floor(time / 60);
   const minutes = time % 60;
@@ -13,3 +15,5 @@ export const formatMmSs = (seconds: number): string => {
   return `${m}:${s}`;
 };
 
+export const getDefaultTask = (block: Block) =>
+    block.tasks.find((task: Task) => !task.completed) ?? null;

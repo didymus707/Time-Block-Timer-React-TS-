@@ -48,6 +48,47 @@ export const blockReducer = (state: Block[], action: Action): Block[] => {
           ? { ...block, activeTaskId: action.payload.taskId }
           : block
       );
+    case "UPDATE_TASK":
+      return state.map((block) =>
+        block.id === action.payload.blockId
+          ? {
+              ...block,
+              tasks: block.tasks.map((task) =>
+                task.id === action.payload.taskId
+                  ? { ...task, ...action.payload.data }
+                  : task
+              ),
+            }
+          : block
+      );
+    case "PAUSE_BLOCK":
+      return state.map((block) =>
+        block.id === action.blockId
+          ? {
+              ...block,
+              status: "paused",
+              pauses: [...block.pauses, { pausedAt: Date.now() }],
+            }
+          : block
+      );
+    case "RESUME_BLOCK":
+      return state.map((block) => {
+        if (block.id !== action.blockId) return block;
+        const pauses = [...block.pauses];
+        const lastPause = pauses[pauses.length - 1];
+        if (lastPause && !lastPause.resumedAt) {
+          lastPause.resumedAt = Date.now();
+          if (action.reason) {
+            lastPause.reason = action.reason;
+          }
+        }
+        return {
+          ...block,
+          status: "running",
+          pauses,
+        };
+      });
+
     // case "STOP_BLOCK":
     //   return state.map((block: Block) =>
     //     block.id === action.payload.id

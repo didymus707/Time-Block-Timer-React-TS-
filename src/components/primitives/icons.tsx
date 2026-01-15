@@ -56,3 +56,4 @@ export const Play = createIcon(HiOutlinePlay);
 export const Pause = createIcon(HiOutlinePause);
 export const Cancel = createIcon(MdOutlineCancel);
 export const CheckCircle = createIcon(LuCircleCheckBig);
+export const Skip = createIcon(LuCircleCheckBig);

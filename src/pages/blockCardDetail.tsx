@@ -1,76 +1,59 @@
 import { useState } from "react";
+// import { getDefaultTask } from "../utils";
 import { useBlock } from "../context/blockContext";
 import { Card } from "../components/primitives/card";
 import Button from "../components/primitives/button";
 import { useNavigate, useParams } from "react-router";
 import { Clock } from "../components/primitives/icons";
 import { TaskModal } from "../components/modals/task";
+import { useSession } from "../context/sessionContext";
 import { TimeProgress } from "../components/blocks/timeProgress";
-import { SessionControl } from "../components/blocks/sessionControl";
-import { useSessionTimer } from "../components/hooks/useSessionTimer";
+import { SessionControl } from "../components/blocks/SessionControl";
+import { useDerivedTime } from "../components/hooks/useDerivedTime";
+import { FocusMode } from "../components/blocks/FocusMode";
 
 export const CardDetails = () => {
-  const { blocks, dispatch } = useBlock();
   const navigate = useNavigate();
   const goBack = () => navigate(-1);
+  const { blocks, dispatch } = useBlock();
   const { id } = useParams<{ id: string }>();
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [isFocusMode, setIsFocusMode] = useState<boolean>(false);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
-
-  const block = blocks.find((b) => b.id === id);
-
-  const activeTask = block?.activeTaskId
-    ? block?.tasks.find((t) => t.id === block.activeTaskId)
-    : block?.tasks[0];
-
-  const safeBlock = block ?? {
-    id: "placeholder",
-    name: "",
-    tasks: [],
-    duration: 0,
-    activeTaskId: null,
-    status: "idle",
-    remaining: 0,
-    progress: 0,
-    elapsed: 0,
-    createdAt: "",
-    completed: false,
-  };
-
-  const safeTask = activeTask ?? {
-    id: "placeholder",
-    name: "",
-    blockId: "",
-    duration: 0,
-    elapsed: 0,
-    remaining: 0,
-    progress: 0,
-    completed: false,
-  };
-
   const {
-    startTimer,
-    pauseTimer,
-    resetTimer,
-    taskElapsed,
-    remainingTask,
-    sessionElapsed,
-    sessionRemaining,
-  } = useSessionTimer({
-    block: safeBlock,
-    activeTask: safeTask,
-  });
+    activeBlock,
+    start,
+    pause,
+    reset,
+    resume,
+    sessionTime: { elapsed, remaining, progress },
+  } = useSession();
+  const block = blocks.find((b) => b.id === id);
+  const { elapsed: sessionElapsed, remaining: sessionRemaining } =
+    useDerivedTime(block ? block : []);
 
-  console.log("debugging ===========", {
-    taskElapsed,
-    remainingTask,
-    sessionElapsed,
-    sessionRemaining,
-  });
+  const activeTask = activeBlock
+    ? activeBlock.tasks.find((t) => !t.completed) ?? null
+    : null;
 
   if (!block) {
     return <div className="p-6 text-gray-600">Block not found.</div>;
   }
+
+  const isSameBlock = activeBlock?.id === block.id;
+  const hasPausedTask = isSameBlock && activeTask && block.status === "paused";
+
+  const handleStartSession = () => {
+    // Fresh start case
+    start(block);
+  };
+
+  const resumeSession = () => {
+    if (hasPausedTask && activeBlock && activeTask) {
+      resume(activeBlock, activeTask.id);
+      return;
+    }
+  };
 
   const setActiveTask = (taskId: string) => {
     dispatch({
@@ -119,13 +102,13 @@ export const CardDetails = () => {
         }
       >
         {/*  PROGRESS BAR for Session */}
-        {block && activeTask && (
+        {block && (
           <TimeProgress
             label="Session Progress"
             elapsed={sessionElapsed}
-            planned={block.duration * 60}
+            planned={block.plannedDuration * 60}
             remaining={sessionRemaining}
-            progress={(sessionElapsed / (block.duration * 60)) * 100}
+            progress={(sessionElapsed / (block.plannedDuration * 60)) * 100}
             variant="session"
           />
         )}
@@ -146,10 +129,10 @@ export const CardDetails = () => {
           {activeTask && (
             <TimeProgress
               label="Task Progress"
-              remaining={remainingTask}
+              remaining={remaining}
               planned={activeTask.duration * 60}
-              elapsed={taskElapsed}
-              progress={(taskElapsed / (activeTask.duration * 60)) * 100}
+              elapsed={elapsed}
+              progress={progress}
               variant="task"
             />
           )}
@@ -175,7 +158,10 @@ export const CardDetails = () => {
               {block.tasks.map((task) => (
                 <li key={task.id}>
                   <button
-                    onClick={() => setActiveTask(task.id)}
+                    onClick={() => {
+                      setActiveTask(task.id);
+                      start(block);
+                    }}
                     className="border border-gray-200 p-2 rounded-lg bg-gray-100 w-full "
                   >
                     {task.name} ({task.duration})min
@@ -187,10 +173,12 @@ export const CardDetails = () => {
         </div>
 
         <SessionControl
+          onPause={pause}
+          onReset={reset}
           status={block.status}
-          onStart={startTimer}
-          onPause={pauseTimer}
-          onReset={resetTimer}
+          onResume={resumeSession}
+          onStart={handleStartSession}
+          hasPausedTask={hasPausedTask}
         />
       </Card>
 
@@ -199,6 +187,8 @@ export const CardDetails = () => {
         isOpen={isTaskModalOpen}
         onClose={closeTaskModal}
       />
+
+      {isFocusMode && <FocusMode onClose={() => setIsFocusMode(false)} />}
     </div>
   );
 };

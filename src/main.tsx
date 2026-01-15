@@ -9,6 +9,7 @@ import {
   BlockProvider,
   BlockUIProvider,
 } from "./context/blockContextProvider.tsx";
+import { SessionProvider } from "./context/sessionManager.tsx";
 
 const root = document.getElementById("root")!;
 
@@ -16,14 +17,16 @@ createRoot(root).render(
   <StrictMode>
     <BrowserRouter>
       <BlockProvider>
-        <BlockUIProvider>
-          <Routes>
-            <Route path="/" element={<App />}>
-              <Route index element={<Home />} />
-              <Route path="block/:id" element={<CardDetails />} />
-            </Route>
-          </Routes>
-        </BlockUIProvider>
+        <SessionProvider>
+          <BlockUIProvider>
+            <Routes>
+              <Route path="/" element={<App />}>
+                <Route index element={<Home />} />
+                <Route path="block/:id" element={<CardDetails />} />
+              </Route>
+            </Routes>
+          </BlockUIProvider>
+        </SessionProvider>
       </BlockProvider>
     </BrowserRouter>
   </StrictMode>

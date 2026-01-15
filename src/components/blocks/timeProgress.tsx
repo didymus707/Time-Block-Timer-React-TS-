@@ -1,4 +1,4 @@
-import { formatHM, formatMmSs } from "../../logic";
+import { formatHM, formatMmSs } from "../../utils";
 
 interface TimeProgressProps {
   label: string;
