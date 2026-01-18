@@ -331,11 +331,11 @@ export const SessionProvider = ({
     block: Block,
     currentTaskId: string
   ): Task | null => {
-    const freshBlock = blocksRef.current.find((b) => b.id === block.id);
-    const nextTask = freshBlock?.tasks.find(t => !t.completed && t.id !== currentTaskId);
-    if (nextTask) return nextTask;
-
-    return null
+    const currentTask = block.tasks.find((t) => t.id === currentTaskId);
+    if (!currentTask) return null;
+    const currentIndex = block.tasks.indexOf(currentTask)
+    
+    return null;
   };
 
   useEffect(() => {
