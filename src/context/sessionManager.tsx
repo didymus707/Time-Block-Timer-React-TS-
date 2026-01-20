@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { Block } from "../types";
+import type { Block, Task } from "../types";
 import { useBlock } from "./blockContext";
 import { SessionContext } from "./sessionContext";
 
@@ -131,7 +131,7 @@ export const SessionProvider = ({
       setProgress(progress);
 
       if (elapsedRef.current >= total) {
-        console.log('I entered this condition, yay!!!')
+        console.log("I entered this condition, yay!!!");
         // complete task
         dispatch({
           type: "UPDATE_TASK",
@@ -152,15 +152,14 @@ export const SessionProvider = ({
 
         const freshBlock = blocksRef.current.find((b) => b.id === block.id);
         if (!freshBlock) return;
-        const taskIndex = freshBlock.tasks.findIndex((t) => t.id === task.id);
-        const nextTask = freshBlock.tasks[taskIndex + 1];
+
+        const nextTask = freshBlock.tasks.find((t) => !t.completed);
+        if (!nextTask) return;
+        setActiveTaskId(nextTask.id);
+        activeTaskIdRef.current = nextTask.id;
 
         if (nextTask && !nextTask.completed) {
           // start next task
-          setActiveTaskId(nextTask.id);
-          activeTaskIdRef.current = nextTask.id;
-
-          setActiveTaskId(nextTask.id);
           startInterval(freshBlock, nextTask.id);
 
           // persist session
@@ -326,6 +325,21 @@ export const SessionProvider = ({
         })
       );
     }
+  };
+
+  const resolveNextTask = (
+    block: Block,
+    currentTaskId: string
+  ): Task | null => {
+    const currentTask = block.tasks.find((t) => t.id === currentTaskId);
+    if (!currentTask) return block.tasks.find((t) => !t.completed) || null;
+
+    const currentIndex = block.tasks.indexOf(currentTask);
+    if (currentIndex === -1 || currentIndex === block.tasks.length - 1)
+      return null;
+    const nextTaskArray = block.tasks.slice(currentIndex + 1);
+    const nextTask = nextTaskArray.find((t) => !t.completed);
+    return nextTask || null;
   };
 
   useEffect(() => {
