@@ -59,6 +59,21 @@ export const SessionProvider = ({
     localStorage.removeItem(SESSION_KEY);
   };
 
+  const resolveNextTask = (
+    block: Block,
+    currentTaskId: string
+  ): Task | null => {
+    const currentTask = block.tasks.find((t) => t.id === currentTaskId);
+    if (!currentTask) return block.tasks.find((t) => !t.completed) || null;
+
+    const currentIndex = block.tasks.indexOf(currentTask);
+    if (currentIndex === -1 || currentIndex === block.tasks.length - 1)
+      return null;
+    const nextTaskArray = block.tasks.slice(currentIndex + 1);
+    const nextTask = nextTaskArray.find((t) => !t.completed);
+    return nextTask || null;
+  };
+
   const start = (block: Block) => {
     const currentBlock =
       blocksRef.current.find((b) => b.id === block.id) || block;
@@ -130,6 +145,8 @@ export const SessionProvider = ({
       const progress = total === 0 ? 0 : (elapsedRef.current / total) * 100;
       setProgress(progress);
 
+      console.log("debug", { cd: elapsedRef.current, total });
+
       if (elapsedRef.current >= total) {
         console.log("I entered this condition, yay!!!");
         // complete task
@@ -153,12 +170,13 @@ export const SessionProvider = ({
         const freshBlock = blocksRef.current.find((b) => b.id === block.id);
         if (!freshBlock) return;
 
-        const nextTask = freshBlock.tasks.find((t) => !t.completed);
-        if (!nextTask) return;
-        setActiveTaskId(nextTask.id);
-        activeTaskIdRef.current = nextTask.id;
+        const nextTask = resolveNextTask(freshBlock, task.id);
 
-        if (nextTask && !nextTask.completed) {
+        if (nextTask) {
+          setActiveTaskId(nextTask.id);
+          activeTaskIdRef.current = nextTask.id;
+          elapsedRef.current = nextTask.elapsed ?? 0;
+          remainingRef.current = nextTask.remaining ?? nextTask.duration * 60;
           // start next task
           startInterval(freshBlock, nextTask.id);
 
@@ -166,7 +184,7 @@ export const SessionProvider = ({
           localStorage.setItem(
             SESSION_KEY,
             JSON.stringify({
-              blockId: block.id,
+              blockId: freshBlock.id,
               taskId: nextTask.id,
               isPaused: false,
               lastStartedAt: Date.now(),
@@ -178,9 +196,7 @@ export const SessionProvider = ({
             type: "UPDATE_BLOCK",
             payload: { ...freshBlock, status: "completed" },
           });
-
-          // terminate session
-          terminateSession();
+          return;
         }
       }
     }, 1000);
@@ -231,8 +247,6 @@ export const SessionProvider = ({
 
     const total = activeTask.duration * 60;
     const progress = total === 0 ? 0 : (elapsedRef.current / total) * 100;
-
-    console.log("pause", elapsedRef.current);
 
     // 2. Persist task state
     dispatch({
@@ -325,21 +339,6 @@ export const SessionProvider = ({
         })
       );
     }
-  };
-
-  const resolveNextTask = (
-    block: Block,
-    currentTaskId: string
-  ): Task | null => {
-    const currentTask = block.tasks.find((t) => t.id === currentTaskId);
-    if (!currentTask) return block.tasks.find((t) => !t.completed) || null;
-
-    const currentIndex = block.tasks.indexOf(currentTask);
-    if (currentIndex === -1 || currentIndex === block.tasks.length - 1)
-      return null;
-    const nextTaskArray = block.tasks.slice(currentIndex + 1);
-    const nextTask = nextTaskArray.find((t) => !t.completed);
-    return nextTask || null;
   };
 
   useEffect(() => {
