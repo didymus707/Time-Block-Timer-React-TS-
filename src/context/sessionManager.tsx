@@ -145,10 +145,7 @@ export const SessionProvider = ({
       const progress = total === 0 ? 0 : (elapsedRef.current / total) * 100;
       setProgress(progress);
 
-      console.log("debug", { cd: elapsedRef.current, total });
-
       if (elapsedRef.current >= total) {
-        console.log("I entered this condition, yay!!!");
         // complete task
         dispatch({
           type: "UPDATE_TASK",
