@@ -164,7 +164,7 @@ export const CardDetails = () => {
                     }}
                     className="border border-gray-200 p-2 rounded-lg bg-gray-100 w-full "
                   >
-                    {task.name} ({task.duration})min
+                    {task.name} ({task.duration} {task.duration <= 1 ? 'min' : 'mins'})
                   </button>
                 </li>
               ))}

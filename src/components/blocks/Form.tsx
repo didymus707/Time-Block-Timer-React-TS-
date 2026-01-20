@@ -240,7 +240,7 @@ export const BlockForm: React.FC<BlockFormProps> = ({
                               <li className="" key={task.id}>
                                 {task.name}{" "}
                                 <span className="text-sm text-gray-500">
-                                  ({task.duration} mins)
+                                  ({task.duration} {task.duration <= 1 ? 'min' : 'mins'})
                                 </span>
                               </li>
                               <div className="task-icons ml-auto">
