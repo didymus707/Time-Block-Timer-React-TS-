@@ -332,10 +332,14 @@ export const SessionProvider = ({
     currentTaskId: string
   ): Task | null => {
     const currentTask = block.tasks.find((t) => t.id === currentTaskId);
-    if (!currentTask) return null;
-    const currentIndex = block.tasks.indexOf(currentTask)
-    
-    return null;
+    if (!currentTask) return block.tasks.find((t) => !t.completed) || null;
+
+    const currentIndex = block.tasks.indexOf(currentTask);
+    if (currentIndex === -1 || currentIndex === block.tasks.length - 1)
+      return null;
+    const nextTaskArray = block.tasks.slice(currentIndex + 1);
+    const nextTask = nextTaskArray.find((t) => !t.completed);
+    return nextTask || null;
   };
 
   useEffect(() => {
