@@ -1,85 +1,100 @@
+// src/components/blocks/FocusMode.tsx
 import { useSession } from "../../context/sessionContext";
-import { useDerivedTime } from "../hooks/useDerivedTime";
 import Button from "../primitives/button";
-import { Pause, Play, Skip, Cancel } from "../primitives/icons";
+import { Close, Pause, Play } from "../primitives/icons";
 
-export const FocusMode = ({ onClose }: { onClose: () => void }) => {
-  const { activeBlock, pause, start, sessionTime } = useSession();
+interface FocusModeProps {
+  onClose: () => void;
+}
 
-  // Use your new hook to get the live pulse for the specific active block
-  const { remaining } = useDerivedTime(activeBlock!);
+export const FocusMode = ({ onClose }: FocusModeProps) => {
+  const { activeBlock, activeTaskId, sessionTime, pause, resume } =
+    useSession();
 
-  if (!activeBlock) return null;
+  if (!activeBlock || !activeTaskId) return null;
 
+  const currentTask = activeBlock.tasks.find((t) => t.id === activeTaskId);
+  const isRunning = activeBlock.status === "running";
+
+  // Helper to format the seconds into MM:SS
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
+    const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const isRunning = activeBlock.status === "running";
-
   return (
-    <div className="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center p-6 animate-in fade-in duration-500">
-      {/* Top Controls */}
-      <button
-        onClick={onClose}
-        className="absolute top-8 right-8 text-gray-400 hover:text-gray-900 transition-colors"
-      >
-        <Cancel size="2rem" />
-      </button>
+    <div className="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-between p-12 animate-in fade-in duration-300">
+      {/* Top Navigation */}
+      <div className="w-full flex justify-end">
+        <button
+          onClick={onClose}
+          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+        >
+          <Close size='32' />
+        </button>
+      </div>
 
-      {/* Main Timer Display */}
-      <div className="text-center space-y-4">
-        <p className="text-sm font-medium tracking-widest text-blue-600 uppercase">
-          Current Task
-        </p>
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-900">
-          {activeBlock.tasks.find((t) => !t.completed)?.name ||
-            "Finishing up..."}
+      {/* Center Content: The Large Timer */}
+      <div className="flex flex-col items-center text-center">
+        <span className="text-sm uppercase tracking-[0.2em] text-gray-400 mb-4 font-medium">
+          Current Focus
+        </span>
+        <h1 className="text-3xl font-semibold text-black mb-12">
+          {currentTask?.name || "No Active Task"}
         </h1>
 
-        <div className="py-20">
-          <span className="text-[10rem] md:text-[15rem] font-light tracking-tighter tabular-nums text-gray-900 leading-none">
-            {formatTime(remaining)}
+        <div className="relative flex items-center justify-center">
+          {/* Large Countdown */}
+          <span className="text-[12rem] md:text-[16rem] font-light tabular-nums leading-none tracking-tighter text-black">
+            {formatTime(sessionTime.remaining)}
           </span>
         </div>
       </div>
 
-      {/* Action Controls */}
-      <div className="flex items-center gap-8">
-        <Button
-          variant="secondary"
-          size="lg"
-          className="rounded-full p-6 h-20 w-20 shadow-xl border-gray-100"
-          onClick={isRunning ? pause : () => start(activeBlock)}
-        >
-          {isRunning ? <Pause size="2rem" /> : <Play size="2rem" />}
-        </Button>
-
-        <Button
-          variant="ghost"
-          size="lg"
-          className="text-gray-400 hover:text-gray-900"
-          onClick={() => {
-            /* Logic for skip task */
-          }}
-        >
-          <Skip size="1.5rem" />
-        </Button>
-      </div>
-
-      {/* Progress Footer */}
-      <div className="absolute bottom-12 w-full max-w-md px-6">
-        <div className="flex justify-between text-sm text-gray-500 mb-2">
-          <span>Session Progress</span>
-          <span>{activeBlock.name}</span>
+      {/* Bottom Controls */}
+      <div className="w-full max-w-md flex flex-col items-center gap-12">
+        {/* Session Progress Bar */}
+        <div className="w-full space-y-2">
+          <div className="flex justify-between text-[10px] uppercase tracking-widest text-gray-400">
+            <span>{activeBlock.name}</span>
+            <span>{Math.round(sessionTime.progress)}%</span>
+          </div>
+          <div className="h-[2px] w-full bg-gray-100">
+            <div
+              className="h-full bg-black transition-all duration-500"
+              style={{ width: `${sessionTime.progress}%` }}
+            />
+          </div>
         </div>
-        <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-blue-600 transition-all duration-1000"
-            style={{ width: `${sessionTime.progress}%` }}
-          />
+
+        {/* Action Buttons */}
+        <div className="flex items-center gap-8">
+          {isRunning ? (
+            <Button
+              variant="secondary"
+              onClick={pause}
+              className="w-16 h-16 rounded-full flex items-center justify-center border-2 border-black"
+            >
+              <Pause size='24' color="black" />
+            </Button>
+          ) : (
+            <Button
+              variant="primary"
+              onClick={() => resume(activeBlock, activeTaskId)}
+              className="w-16 h-16 rounded-full flex items-center justify-center bg-black text-white"
+            >
+              <Play size='28' color="white"  />
+            </Button>
+          )}
+
+          {/* <button
+            onClick={skipTask}
+            className="p-4 text-gray-400 hover:text-black transition-colors"
+            title="Skip Task"
+          >
+            <Skip size='28' />
+          </button> */}
         </div>
       </div>
     </div>

@@ -26,6 +26,7 @@ export const CardDetails = () => {
     pause,
     reset,
     resume,
+    activeTaskId,
     sessionTime: { elapsed, remaining, progress },
   } = useSession();
   const block = blocks.find((b) => b.id === id);
@@ -33,7 +34,7 @@ export const CardDetails = () => {
     useDerivedTime(block ? block : []);
 
   const activeTask = activeBlock
-    ? activeBlock.tasks.find((t) => !t.completed) ?? null
+    ? (activeBlock.tasks.find((t) => !t.completed) ?? null)
     : null;
 
   if (!block) {
@@ -91,10 +92,10 @@ export const CardDetails = () => {
               block.status === "running"
                 ? "bg-green-100 text-green-700"
                 : block.status === "paused"
-                ? "bg-yellow-100 text-yellow-700"
-                : block.status === "completed"
-                ? "bg-gray-200 text-gray-700"
-                : "bg-blue-100 text-blue-700"
+                  ? "bg-yellow-100 text-yellow-700"
+                  : block.status === "completed"
+                    ? "bg-gray-200 text-gray-700"
+                    : "bg-blue-100 text-blue-700"
             }`}
           >
             {block.status}
@@ -139,38 +140,83 @@ export const CardDetails = () => {
         </div>
 
         {/* Task Queue */}
-        <div className="task-queue">
-          <h3 className="font-medium text-gray-700 mb-2 mt-6">Task Queue</h3>
+        <div className="task-queue w-full mx-auto">
+          <div className="flex justify-between items-center mb-6 mt-8">
+            <h3 className="text-[10px] uppercase tracking-[0.2em] font-medium text-gray-400">
+              Task Queue
+            </h3>
+            {block.tasks.length > 0 && (
+              <button
+                onClick={() => openTaskModal(block.id)}
+                className="text-[10px] uppercase tracking-widest text-black hover:opacity-60 transition-opacity"
+              >
+                + Add
+              </button>
+            )}
+          </div>
+
           {block.tasks.length === 0 ? (
-            <>
-              <p className="text-gray-600">No tasks in the queue.</p>
+            <div className="flex flex-col items-center py-12 border border-dashed border-gray-200 rounded-sm">
+              <p className="text-sm text-gray-400 mb-4">
+                No tasks in the queue.
+              </p>
               <Button
                 onClick={() => openTaskModal(block.id)}
                 size="sm"
                 variant="primary"
-                className="hover:cursor-pointer mt-4 text-sm px-4"
+                className="text-[10px] uppercase tracking-widest px-6"
               >
-                Add tasks
+                Initialize Queue
               </Button>
-            </>
+            </div>
           ) : (
-            <ul className="space-y-2 text-gray-700">
-              {block.tasks.map((task) => (
-                <li key={task.id}>
-                  <button
-                    onClick={() => {
-                      setActiveTask(task.id);
-                      start(block);
-                    }}
-                    className="border border-gray-200 p-2 rounded-lg bg-gray-100 w-full "
-                  >
-                    {task.name} ({task.duration})min
-                  </button>
-                </li>
-              ))}
+            <ul className="space-y-3">
+              {block.tasks.map((task) => {
+                const isActive = activeTaskId === task.id;
+                const isCompleted = task.completed;
+
+                return (
+                  <li key={task.id} className="group">
+                    <button
+                      onClick={() => {
+                        if (!isCompleted) {
+                          start(block);
+                        }
+                      }}
+                      disabled={isCompleted}
+                      className={`
+                w-full flex items-center justify-between p-4 rounded-sm transition-all duration-300
+                ${isActive ? "bg-black text-white" : "bg-transparent border border-gray-100 hover:border-black"}
+                ${isCompleted ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}
+              `}
+                    >
+                      <div className="flex items-center gap-3">
+                        {/* Active Indicator Dot */}
+                        {isActive && (
+                          <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+                        )}
+
+                        <span
+                          className={`text-sm font-medium ${isCompleted ? "line-through" : ""}`}
+                        >
+                          {task.name}
+                        </span>
+                      </div>
+
+                      <span
+                        className={`text-[10px] tabular-nums tracking-wider ${isActive ? "text-gray-300" : "text-gray-400"}`}
+                      >
+                        {task.duration}m
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>
+
+        
 
         <SessionControl
           onPause={pause}
@@ -180,6 +226,22 @@ export const CardDetails = () => {
           onStart={handleStartSession}
           hasPausedTask={hasPausedTask}
         />
+
+        {(activeBlock?.status === "running" ||
+          activeBlock?.status === "paused") && (
+          <div className="flex flex-col items-center w-full">
+            <button
+              onClick={() => setIsFocusMode(true)}
+              className="mt-6 px-4 py-2 text-[10px] uppercase tracking-widest text-black bg-transparent hover:bg-gray-50 hover:tracking-[0.3em] transition-all duration-300 ease-in-out"
+              // className="mt-6 px-6 py-2 text-[10px] uppercase tracking-[0.2em] text-black bg-transparent hover:bg-black hover:text-white transition-all duration-300 rounded-full font-medium"
+              // className="relative mt-6 px-2 py-2 text-[10px] uppercase tracking-widest text-black bg-transparent after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:w-0 after:h-[2px] after:bg-black after:transition-all after:duration-300 hover:after:w-full hover:after:left-0"
+            >
+              Expand to Focus Mode
+            </button>
+          </div>
+        )}
+
+        {isFocusMode && <FocusMode onClose={() => setIsFocusMode(false)} />}
       </Card>
 
       <TaskModal
