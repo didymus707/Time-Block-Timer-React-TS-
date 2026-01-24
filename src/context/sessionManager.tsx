@@ -59,6 +59,17 @@ export const SessionProvider = ({
     localStorage.removeItem(SESSION_KEY);
   };
 
+  const completeBlockAndEndSession = (block: Block) => {
+    // complete Block
+    dispatch({
+      type: "UPDATE_BLOCK",
+      payload: { ...block, status: "completed" },
+    });
+
+    // terminate session
+    terminateSession();
+  };
+
   const resolveNextTask = (
     block: Block,
     currentTaskId: string,
@@ -72,17 +83,6 @@ export const SessionProvider = ({
     const nextTaskArray = block.tasks.slice(currentIndex + 1);
     const nextTask = nextTaskArray.find((t) => !t.completed);
     return nextTask || null;
-  };
-
-  const completeBlockAndEndSession = (block: Block) => {
-    // complete Block
-    dispatch({
-      type: "UPDATE_BLOCK",
-      payload: { ...block, status: "completed" },
-    });
-
-    // terminate session
-    terminateSession();
   };
 
   const start = (block: Block) => {
@@ -199,11 +199,7 @@ export const SessionProvider = ({
             }),
           );
         } else {
-          // complete block
-          dispatch({
-            type: "UPDATE_BLOCK",
-            payload: { ...freshBlock, status: "completed" },
-          });
+          completeBlockAndEndSession(freshBlock);
           return;
         }
       }
