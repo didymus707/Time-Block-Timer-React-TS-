@@ -69,7 +69,6 @@ export const Overview = () => {
 
         {/*  PROGRESS BAR  */}
         <TimeProgress
-          label="Time Progress"
           elapsed={appElapsed}
           planned={totalPlanned * 60}
           progress={progress}

@@ -16,9 +16,11 @@ export const BlockCard = ({ block }: BlockCardProps) => {
     navigate(`/block/${block.id}`);
   };
 
-  const planned = block.plannedDuration;
+  const planned = (block.plannedDuration ?? 0); 
 
   const progress = (elapsed / (planned * 60)) * 100 || 0;
+
+  // const elapsed = block.tasks
 
   return (
     <div>

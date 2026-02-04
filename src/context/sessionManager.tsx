@@ -43,12 +43,7 @@ export const SessionProvider = ({
     remainingRef.current = 0;
 
     // reset block status if it exists
-    if (activeBlockId) {
-      dispatch({
-        type: "UPDATE_BLOCK",
-        payload: { id: activeBlockId, status: "idle" },
-      });
-    }
+    
 
     // clear session state
     setActiveBlockId(null);
@@ -59,9 +54,20 @@ export const SessionProvider = ({
     localStorage.removeItem(SESSION_KEY);
   };
 
+  const completeBlockAndEndSession = (block: Block) => {
+    // complete Block
+    dispatch({
+      type: "UPDATE_BLOCK",
+      payload: { ...block, status: "completed" },
+    });
+
+    // terminate session
+    terminateSession();
+  };
+
   const resolveNextTask = (
     block: Block,
-    currentTaskId: string
+    currentTaskId: string,
   ): Task | null => {
     const currentTask = block.tasks.find((t) => t.id === currentTaskId);
     if (!currentTask) return block.tasks.find((t) => !t.completed) || null;
@@ -96,7 +102,7 @@ export const SessionProvider = ({
         taskId: firstTask.id,
         isPaused: false,
         lastStartedAt: Date.now(),
-      })
+      }),
     );
 
     // 3. Update block status
@@ -185,14 +191,10 @@ export const SessionProvider = ({
               taskId: nextTask.id,
               isPaused: false,
               lastStartedAt: Date.now(),
-            })
+            }),
           );
         } else {
-          // complete block
-          dispatch({
-            type: "UPDATE_BLOCK",
-            payload: { ...freshBlock, status: "completed" },
-          });
+          completeBlockAndEndSession(freshBlock);
           return;
         }
       }
@@ -275,7 +277,7 @@ export const SessionProvider = ({
           ...data,
           isPaused: true,
           lastElapsed: elapsedRef.current,
-        })
+        }),
       );
     }
   };
@@ -333,7 +335,7 @@ export const SessionProvider = ({
           isPaused: true,
           lastElapsed: 0,
           lastStartedAt: Date.now(),
-        })
+        }),
       );
     }
   };

@@ -27,12 +27,14 @@ export const CardDetails = () => {
     reset,
     resume,
     activeTaskId,
+    activeBlockId,
     sessionTime: { elapsed, remaining, progress },
   } = useSession();
+  
   const block = blocks.find((b) => b.id === id);
   const { elapsed: sessionElapsed, remaining: sessionRemaining } =
-    useDerivedTime(block ? block : []);
-
+  useDerivedTime(block ? block : []);
+  
   const activeTask = activeBlock
     ? (activeBlock.tasks.find((t) => !t.completed) ?? null)
     : null;
@@ -41,6 +43,7 @@ export const CardDetails = () => {
     return <div className="p-6 text-gray-600">Block not found.</div>;
   }
 
+  const isActive = block.id === activeBlockId;
   const isSameBlock = activeBlock?.id === block.id;
   const hasPausedTask = isSameBlock && activeTask && block.status === "paused";
 
@@ -119,7 +122,7 @@ export const CardDetails = () => {
           <div className="flex items-center">
             <h3 className="font-medium text-gray-700">Current Task:</h3>
 
-            {activeTask ? (
+            {activeTask && isActive ? (
               <span className="text-gray-800 text-md">{activeTask.name}</span>
             ) : (
               <span className="text-gray-600 ml-4">No active task</span>
@@ -127,7 +130,7 @@ export const CardDetails = () => {
           </div>
 
           {/* TimeProgress for Task */}
-          {activeTask && (
+          {activeTask && isActive && (
             <TimeProgress
               label="Task Progress"
               remaining={remaining}
@@ -215,8 +218,6 @@ export const CardDetails = () => {
             </ul>
           )}
         </div>
-
-        
 
         <SessionControl
           onPause={pause}

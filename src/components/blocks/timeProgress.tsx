@@ -1,7 +1,7 @@
 import { formatHM, formatMmSs } from "../../utils";
 
 interface TimeProgressProps {
-  label: string;
+  label?: string;
   elapsed: number;
   planned: number;
   remaining?: number;
@@ -14,7 +14,7 @@ export const TimeProgress = ({
   remaining,
   planned,
   progress,
-  label = "Time Progress",
+  label = "Block Progress",
   variant = "total",
 }: TimeProgressProps) => {
   return (
