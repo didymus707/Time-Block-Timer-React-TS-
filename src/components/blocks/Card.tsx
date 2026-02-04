@@ -20,7 +20,7 @@ export const BlockCard = ({ block }: BlockCardProps) => {
 
   const progress = (elapsed / (planned * 60)) * 100 || 0;
 
-  // const elapsed = if 
+  // const elapsed = block.tasks
 
   return (
     <div>

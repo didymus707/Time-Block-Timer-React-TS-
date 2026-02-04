@@ -43,12 +43,7 @@ export const SessionProvider = ({
     remainingRef.current = 0;
 
     // reset block status if it exists
-    if (activeBlockId) {
-      dispatch({
-        type: "UPDATE_BLOCK",
-        payload: { id: activeBlockId, status: "idle" },
-      });
-    }
+    
 
     // clear session state
     setActiveBlockId(null);
