@@ -31,7 +31,9 @@ export const SessionProvider = ({
   const activeTaskIdRef = useRef<string | null>(null);
   const virtualTimerRef = useRef<number | null>(null);
 
-  const terminateSession = () => {
+  const terminateSession = (opts?: { resetBlockStatus?: boolean }) => {
+    const resetBlockStatus = opts?.resetBlockStatus ?? true;
+
     // stop the interval
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
@@ -43,7 +45,12 @@ export const SessionProvider = ({
     remainingRef.current = 0;
 
     // reset block status if it exists
-    
+    if (activeBlockId && resetBlockStatus) {
+      dispatch({
+        type: "UPDATE_BLOCK",
+        payload: { id: activeBlockId, status: "idle" },
+      });
+    }
 
     // clear session state
     setActiveBlockId(null);
@@ -62,7 +69,7 @@ export const SessionProvider = ({
     });
 
     // terminate session
-    terminateSession();
+    terminateSession({ resetBlockStatus: false });
   };
 
   const resolveNextTask = (
