@@ -31,6 +31,15 @@ export const useDerivedTime = (targetBlocks: Block | Block[]) => {
       block.tasks.some((task: Task) => task.id === activeTaskId),
   );
 
+  const activeBlock = blocks.find((b) => b.id === activeBlockId);
+
+  if (activeBlock?.status === "completed") {
+    return {
+      elapsed: staticTotalElapsed,
+      remaining: staticTotalRemaining,
+    };
+  }
+
   // if block or task is active, find that specific task in the main blocks state, subtract its static time, and add the sessionTime.elapsed pulse.
   if (isActiveInTarget && activeBlockId && activeTaskId) {
     const activeBlock = blocks.find((b) => b.id === activeBlockId);
