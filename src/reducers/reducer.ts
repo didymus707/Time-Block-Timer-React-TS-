@@ -25,12 +25,6 @@ export const blockReducer = (state: Block[], action: Action): Block[] => {
             }
           : block
       );
-    // case "UPDATE_PROGRESS":
-    //   return state.map((block) =>
-    //     block.id === action.payload.id
-    //       ? { ...block, progress: action.payload.progress }
-    //       : block
-    //   );
     case "DELETE_BLOCK":
       return state.filter((block: Block) => block.id !== action.payload.id);
     case "ADD_TASK_TO_BLOCK":
