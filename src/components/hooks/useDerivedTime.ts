@@ -15,19 +15,20 @@ export const useDerivedTime = (targetBlocks: Block | Block[]) => {
   const staticTotalElapsed = blockArray.reduce(
     (acc, block) =>
       acc + block.tasks.reduce((tAcc, task) => tAcc + task.elapsed, 0),
-    0
+    0,
   );
   const staticTotalRemaining = blockArray.reduce(
     (acc, block) =>
       acc + block.tasks.reduce((tAcc, task) => tAcc + task.remaining, 0),
-    0
+    0,
   );
 
   // check if active block and task are in the target blocks
   const isActiveInTarget = blockArray.some(
     (block) =>
       block.id === activeBlockId &&
-      block.tasks.some((task: Task) => task.id === activeTaskId)
+      block.status !== "completed" &&
+      block.tasks.some((task: Task) => task.id === activeTaskId),
   );
 
   // if block or task is active, find that specific task in the main blocks state, subtract its static time, and add the sessionTime.elapsed pulse.
@@ -42,7 +43,7 @@ export const useDerivedTime = (targetBlocks: Block | Block[]) => {
       elapsed: staticTotalElapsed - savedElapsed + sessionTime.elapsed,
       remaining: Math.max(
         0,
-        staticTotalRemaining - savedRemaining + sessionTime.remaining
+        staticTotalRemaining - savedRemaining + sessionTime.remaining,
       ),
     };
   }
@@ -50,6 +51,5 @@ export const useDerivedTime = (targetBlocks: Block | Block[]) => {
   return {
     elapsed: staticTotalElapsed,
     remaining: staticTotalRemaining,
-  }
-
+  };
 };
