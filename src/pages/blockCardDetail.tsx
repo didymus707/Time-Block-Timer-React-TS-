@@ -30,11 +30,11 @@ export const CardDetails = () => {
     activeBlockId,
     sessionTime: { elapsed, remaining, progress },
   } = useSession();
-  
+
   const block = blocks.find((b) => b.id === id);
   const { elapsed: sessionElapsed, remaining: sessionRemaining } =
-  useDerivedTime(block ? block : []);
-  
+    useDerivedTime(block ? block : []);
+
   const activeTask = activeBlock
     ? (activeBlock.tasks.find((t) => !t.completed) ?? null)
     : null;
@@ -76,6 +76,12 @@ export const CardDetails = () => {
     setSelectedBlockId(null);
   };
 
+  const plannedDuration = (block.plannedDuration ?? 0) * 60;
+  let sessionProgress =
+    plannedDuration > 0 ? (sessionElapsed / plannedDuration) * 100 : 0;
+  sessionProgress = Math.max(0, Math.min(100, sessionProgress));
+  if (block.status === 'completed') (sessionProgress = 100)
+
   return (
     <div className="p-6 max-w-5xl mx-auto">
       <button
@@ -110,9 +116,9 @@ export const CardDetails = () => {
           <TimeProgress
             label="Session Progress"
             elapsed={sessionElapsed}
-            planned={block.plannedDuration * 60}
+            planned={plannedDuration}
             remaining={sessionRemaining}
-            progress={(sessionElapsed / (block.plannedDuration * 60)) * 100}
+            progress={sessionProgress}
             variant="session"
           />
         )}
