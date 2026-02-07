@@ -16,11 +16,15 @@ export const BlockCard = ({ block }: BlockCardProps) => {
     navigate(`/block/${block.id}`);
   };
 
-  const planned = (block.plannedDuration ?? 0); 
+  const plannedDuratiion = block.tasks.reduce(
+    (acc, task) => acc + task.duration,
+    0,
+  );
 
-  const progress = (elapsed / (planned * 60)) * 100 || 0;
+  const progress = (elapsed / (plannedDuratiion * 60)) * 100 || 0;
+  const clamped = Math.max(0, Math.min(100, progress));
 
-  // const elapsed = block.tasks
+  const finalProgress = block.status === "completed" ? 100 : clamped;
 
   return (
     <div>
@@ -33,10 +37,10 @@ export const BlockCard = ({ block }: BlockCardProps) => {
                 block.status === "running"
                   ? "bg-green-100 text-green-700"
                   : block.status === "paused"
-                  ? "bg-yellow-100 text-yellow-700"
-                  : block.status === "completed"
-                  ? "bg-gray-200 text-gray-700"
-                  : "bg-blue-100 text-blue-700"
+                    ? "bg-yellow-100 text-yellow-700"
+                    : block.status === "completed"
+                      ? "bg-gray-200 text-gray-700"
+                      : "bg-blue-100 text-blue-700"
               }`}
             >
               {block.status}
@@ -59,10 +63,12 @@ export const BlockCard = ({ block }: BlockCardProps) => {
         <div className="mt-3 bg-gray-200 h-2 rounded-full">
           <div
             className="h-2 bg-black rounded-full"
-            style={{ width: `${progress}%` }}
+            style={{ width: `${finalProgress}%` }}
           />
         </div>
-        <p className="text-xs text-gray-400 mt-1">{Math.floor(progress)}% complete</p>
+        <p className="text-xs text-gray-400 mt-1">
+          {Math.floor(finalProgress)}% complete
+        </p>
 
         <ul className="text-sm text-gray-400 mt-2">
           {block.tasks.slice(0, 3).map((t, i) => (
