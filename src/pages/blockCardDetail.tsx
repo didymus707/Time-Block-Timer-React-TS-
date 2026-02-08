@@ -82,6 +82,8 @@ export const CardDetails = () => {
   sessionProgress = Math.max(0, Math.min(100, sessionProgress));
   if (block.status === 'completed') (sessionProgress = 100)
 
+  const sessionRemainingCap = Math.max(0, plannedDuration - sessionElapsed);
+
   return (
     <div className="p-6 max-w-5xl mx-auto">
       <button
@@ -117,7 +119,7 @@ export const CardDetails = () => {
             label="Session Progress"
             elapsed={sessionElapsed}
             planned={plannedDuration}
-            remaining={sessionRemaining}
+            remaining={sessionRemainingCap}
             progress={sessionProgress}
             variant="session"
           />
