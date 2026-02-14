@@ -61,11 +61,11 @@ export const SessionProvider = ({
     localStorage.removeItem(SESSION_KEY);
   };
 
-  const completeBlockAndEndSession = (block: Block) => {
+  const completeBlockAndEndSession = (blockId: string) => {
     // complete Block
     dispatch({
       type: "UPDATE_BLOCK",
-      payload: { ...block, status: "completed" },
+      payload: { id: blockId, status: "completed" },
     });
 
     // terminate session
@@ -201,7 +201,7 @@ export const SessionProvider = ({
             }),
           );
         } else {
-          completeBlockAndEndSession(freshBlock);
+          completeBlockAndEndSession(freshBlock.id);
           return;
         }
       }
