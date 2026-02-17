@@ -1,5 +1,5 @@
 import { BlockCard } from "../components/blocks/Card";
-import { Overview } from "../components/blocks/Overview";
+import { Overview } from "../components/blocks/overView";
 import { useBlock, useBlockUI } from "../context/blockContext";
 
 export const Home = () => {

@@ -35,7 +35,7 @@ export interface Task {
 
 export type Action =
   | { type: "ADD_BLOCK"; payload: Block }
-  | { type: "DELETE_BLOCK"; payload: Block }
+  | { type: "DELETE_BLOCK"; payload: {id: string} }
   | { type: "TOGGLE_STATUS"; payload: { id: string } }
   | { type: "UPDATE_BLOCK"; payload: {id: string} & Partial<Block> }
   | { type: "UPDATE_PROGRESS"; payload: { id: string; progress: number } }
