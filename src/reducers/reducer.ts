@@ -20,10 +20,10 @@ export const blockReducer = (state: Block[], action: Action): Block[] => {
                 block.status === "running"
                   ? "paused"
                   : block.status === "paused" || block.status === "idle"
-                  ? "running"
-                  : block.status, // completed or stopped remains unchanged
+                    ? "running"
+                    : block.status, // completed or stopped remains unchanged
             }
-          : block
+          : block,
       );
     case "DELETE_BLOCK":
       return state.filter((block: Block) => block.id !== action.payload.id);
@@ -34,13 +34,13 @@ export const blockReducer = (state: Block[], action: Action): Block[] => {
               ...block,
               tasks: [...block.tasks, action.payload.task],
             }
-          : block
+          : block,
       );
     case "SET_ACTIVE_TASK":
       return state.map((block) =>
         block.id === action.payload.blockId
           ? { ...block, activeTaskId: action.payload.taskId }
-          : block
+          : block,
       );
     case "UPDATE_TASK":
       return state.map((block) =>
@@ -50,11 +50,31 @@ export const blockReducer = (state: Block[], action: Action): Block[] => {
               tasks: block.tasks.map((task) =>
                 task.id === action.payload.taskId
                   ? { ...task, ...action.payload.data }
-                  : task
+                  : task,
               ),
             }
-          : block
+          : block,
       );
+    case "DELETE_TASK":
+      return state.map((block) => {
+        if (block.id !== action.payload.blockId) return block;
+
+        const remainingTasks = block.tasks.filter(
+          (task) => task.id !== action.payload.taskId,
+        );
+
+        // if active task was deleted, pick the next one or set null
+        const nextActiveTaskId =
+          block.activeTaskId === action.payload.taskId
+            ? (remainingTasks[0]?.id ?? null)
+            : (block.activeTaskId ?? null);
+
+        return {
+          ...block,
+          tasks: remainingTasks,
+          activeTaskId: nextActiveTaskId,
+        };
+      });
     case "PAUSE_BLOCK":
       return state.map((block) =>
         block.id === action.blockId
@@ -63,7 +83,7 @@ export const blockReducer = (state: Block[], action: Action): Block[] => {
               status: "paused",
               pauses: [...block.pauses, { pausedAt: Date.now() }],
             }
-          : block
+          : block,
       );
     case "RESUME_BLOCK":
       return state.map((block) => {
