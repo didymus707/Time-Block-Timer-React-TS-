@@ -5,8 +5,11 @@ import type { Block, Task } from "../../types";
 import { Add, Cancel, Check, Delete, Edit } from "../primitives/icons";
 
 interface BlockFormProps {
-  addBlock: (newBlock: Block) => void;
+  mode?: "create" | "edit";
   closeForm: () => void;
+  intitalBlock?: Block | null
+  addBlock: (newBlock: Block) => void;
+  updateBlock?: (payload: {id: string, data: Partial<Block>}) => void;
 }
 
 export const BlockForm: React.FC<BlockFormProps> = ({
@@ -17,10 +20,10 @@ export const BlockForm: React.FC<BlockFormProps> = ({
   const [showTask, setShowTask] = useState<boolean>(true);
   const [sessionName, setSessionName] = useState<string | undefined>("");
   const [sessionHours, setSessionHours] = useState<string | undefined>(
-    undefined
+    undefined,
   );
   const [sessionMinutes, setSessionMinutes] = useState<string | undefined>(
-    undefined
+    undefined,
   );
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
 
@@ -30,19 +33,19 @@ export const BlockForm: React.FC<BlockFormProps> = ({
   const totalDuration = hours * 60 + minutes;
   const totalTaskDuration = tasks.reduce(
     (acc, task) => acc + Number(task.duration),
-    0
+    0,
   );
   const remainingTime = totalDuration - totalTaskDuration;
 
   const handleEditChange = (
     id: string,
     field: keyof Task,
-    value: string | number
+    value: string | number,
   ) => {
     setTasks((prevTasks) =>
       prevTasks.map((task) =>
-        task.id === id ? { ...task, [field]: value } : task
-      )
+        task.id === id ? { ...task, [field]: value } : task,
+      ),
     );
   };
 
@@ -212,7 +215,7 @@ export const BlockForm: React.FC<BlockFormProps> = ({
                                     handleEditChange(
                                       task.id,
                                       "duration",
-                                      newValue
+                                      newValue,
                                     );
                                   }}
                                   className={`basis-[15%] mt-0 bg-white border py-1`}
@@ -240,7 +243,8 @@ export const BlockForm: React.FC<BlockFormProps> = ({
                               <li className="" key={task.id}>
                                 {task.name}{" "}
                                 <span className="text-sm text-gray-500">
-                                  ({task.duration} {task.duration <= 1 ? 'min' : 'mins'})
+                                  ({task.duration}{" "}
+                                  {task.duration <= 1 ? "min" : "mins"})
                                 </span>
                               </li>
                               <div className="task-icons ml-auto">

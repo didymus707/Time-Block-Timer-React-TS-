@@ -3,8 +3,6 @@ import { Card } from "../primitives/card";
 import { useNavigate } from "react-router";
 import { Clock, Task } from "../primitives/icons";
 import { useDerivedTime } from "../hooks/useDerivedTime";
-import { useSession } from "../../context/sessionContext";
-import { useBlock } from "../../context/blockContext";
 
 interface BlockCardProps {
   block: Block;
@@ -12,10 +10,7 @@ interface BlockCardProps {
 
 export const BlockCard = ({ block }: BlockCardProps) => {
   const navigate = useNavigate();
-  const { dispatch } = useBlock();
   const { elapsed, remaining } = useDerivedTime(block);
-  const { terminateSession } = useSession();
-
   const handleCardClick = () => {
     navigate(`/block/${block.id}`);
   };
@@ -26,14 +21,6 @@ export const BlockCard = ({ block }: BlockCardProps) => {
   const clamped = Math.max(0, Math.min(100, progress));
 
   const finalProgress = block.status === "completed" ? 100 : clamped;
-
-  const safeDeleteBlock = (block: Block) => {
-    if (block.status === "running" || block.status === "paused")
-      terminateSession({ resetBlockStatus: false });
-
-    dispatch({ type: "DELETE_BLOCK", payload: { id: block.id } });
-    navigate("/");
-  };
 
   return (
     <div>
