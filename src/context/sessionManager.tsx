@@ -434,6 +434,7 @@ export const SessionProvider = ({
         reset,
         resume,
         sessionTime: { elapsed, remaining, progress },
+        terminateSession,
       }}
     >
       {children}

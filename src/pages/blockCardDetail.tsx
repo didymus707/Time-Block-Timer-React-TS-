@@ -1,5 +1,4 @@
 import { useState } from "react";
-// import { getDefaultTask } from "../utils";
 import { useBlock } from "../context/blockContext";
 import { Card } from "../components/primitives/card";
 import Button from "../components/primitives/button";
@@ -7,10 +6,10 @@ import { useNavigate, useParams } from "react-router";
 import { Clock } from "../components/primitives/icons";
 import { TaskModal } from "../components/modals/task";
 import { useSession } from "../context/sessionContext";
-import { TimeProgress } from "../components/blocks/timeProgress";
-import { SessionControl } from "../components/blocks/SessionControl";
-import { useDerivedTime } from "../components/hooks/useDerivedTime";
 import { FocusMode } from "../components/blocks/FocusMode";
+import { TimeProgress } from "../components/blocks/timeProgress";
+import { SessionControl } from "../components/blocks/sessionControl";
+import { useDerivedTime } from "../components/hooks/useDerivedTime";
 
 export const CardDetails = () => {
   const navigate = useNavigate();
@@ -28,12 +27,12 @@ export const CardDetails = () => {
     resume,
     activeTaskId,
     activeBlockId,
+    terminateSession,
     sessionTime: { elapsed, remaining, progress },
   } = useSession();
 
   const block = blocks.find((b) => b.id === id);
-  const { elapsed: sessionElapsed, remaining: sessionRemaining } =
-    useDerivedTime(block ? block : []);
+  const { elapsed: sessionElapsed } = useDerivedTime(block ? block : []);
 
   const activeTask = activeBlock
     ? (activeBlock.tasks.find((t) => !t.completed) ?? null)
@@ -66,6 +65,29 @@ export const CardDetails = () => {
     });
   };
 
+  const safeDeleteBlock = () => {
+    if (block.status === "running" || block.status === "paused")
+      terminateSession({ resetBlockStatus: false });
+
+    dispatch({ type: "DELETE_BLOCK", payload: { id: block.id } });
+    navigate("/");
+  };
+
+  const safeDeleteTask = (taskId: string) => {
+    const isActiveTask = block.activeTaskId === taskId;
+
+    // MVP safety: if deleting the currently active task while running/paused,
+    // terminate session first so no interval ticks against a missing task.
+    if (
+      isActiveTask &&
+      (block.status === "running" || block.status === "paused")
+    ) {
+      terminateSession?.({ resetBlockStatus: false });
+    }
+
+    dispatch({ type: "DELETE_TASK", payload: { blockId: block.id, taskId } });
+  };
+
   const openTaskModal = (id: string) => {
     setSelectedBlockId(id);
     setIsTaskModalOpen(true);
@@ -80,7 +102,7 @@ export const CardDetails = () => {
   let sessionProgress =
     plannedDuration > 0 ? (sessionElapsed / plannedDuration) * 100 : 0;
   sessionProgress = Math.max(0, Math.min(100, sessionProgress));
-  if (block.status === 'completed') (sessionProgress = 100)
+  if (block.status === "completed") sessionProgress = 100;
 
   const sessionRemainingCap = Math.max(0, plannedDuration - sessionElapsed);
 
@@ -98,19 +120,40 @@ export const CardDetails = () => {
         icon={<Clock color="black" classNames={["mr-2"]} />}
         className="bg-transparent p-6 rounded-2xl border border-gray-200 mb-6"
         headerRight={
-          <span
-            className={`text-xs font-medium px-2 py-1 rounded-full ${
-              block.status === "running"
-                ? "bg-green-100 text-green-700"
-                : block.status === "paused"
-                  ? "bg-yellow-100 text-yellow-700"
-                  : block.status === "completed"
-                    ? "bg-gray-200 text-gray-700"
-                    : "bg-blue-100 text-blue-700"
-            }`}
-          >
-            {block.status}
-          </span>
+          <div className="flex items-center gap-2">
+            <span
+              className={`text-xs font-medium px-2 py-1 rounded-full ${
+                block.status === "running"
+                  ? "bg-green-100 text-green-700"
+                  : block.status === "paused"
+                    ? "bg-yellow-100 text-yellow-700"
+                    : block.status === "completed"
+                      ? "bg-gray-200 text-gray-700"
+                      : "bg-blue-100 text-blue-700"
+              }`}
+            >
+              {block.status}
+            </span>
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                safeDeleteBlock();
+              }}
+              className="text-[10px] uppercase tracking-widest px-2 py-1 border border-gray-200 rounded hover:border-black"
+            >
+              Edit
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                safeDeleteBlock();
+              }}
+              className="text-[10px] uppercase tracking-widest px-2 py-1 border border-gray-200 rounded hover:border-black"
+            >
+              Delete
+            </button>
+          </div>
         }
       >
         {/*  PROGRESS BAR for Session */}
@@ -191,6 +234,7 @@ export const CardDetails = () => {
                     <button
                       onClick={() => {
                         if (!isCompleted) {
+                          setActiveTask(task.id);
                           start(block);
                         }
                       }}
@@ -214,11 +258,47 @@ export const CardDetails = () => {
                         </span>
                       </div>
 
-                      <span
-                        className={`text-[10px] tabular-nums tracking-wider ${isActive ? "text-gray-300" : "text-gray-400"}`}
-                      >
-                        {task.duration}m
-                      </span>
+                      <div className="flex items-center gap-3">
+                        <span
+                          className={`text-[10px] tabular-nums tracking-wider ${
+                            isActive ? "text-gray-300" : "text-gray-400"
+                          }`}
+                        >
+                          {task.duration}m
+                        </span>
+
+                        {/* Actions (show on hover) */}
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // open edit task modal (next step)
+                            }}
+                            className="text-[10px] uppercase tracking-widest hover:opacity-60"
+                            disabled={isCompleted}
+                          >
+                            Edit
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              safeDeleteTask(task.id);
+                            }}
+                            className="text-[10px] uppercase tracking-widest hover:opacity-60"
+                            disabled={isCompleted || block.tasks.length === 1}
+                            title={
+                              block.tasks.length === 1
+                                ? "You must keep at least 1 task"
+                                : ""
+                            }
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
                     </button>
                   </li>
                 );

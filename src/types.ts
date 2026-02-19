@@ -74,5 +74,6 @@ export interface SessionContextType {
   pause: () => void;
   reset: () => void;
   resume: (block: Block, taskId: string) => void;
+  terminateSession: (options?: { resetBlockStatus?: boolean }) => void;
   sessionTime: { elapsed: number; remaining: number; progress: number };
 }
