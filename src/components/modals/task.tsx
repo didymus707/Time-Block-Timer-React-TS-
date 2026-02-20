@@ -1,25 +1,61 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "../primitives/button";
 import { Input } from "../primitives/input";
 import { useBlock } from "../../context/blockContext";
 import { ToastContainer, toast } from "react-toastify";
 
 interface TaskModalProps {
-  blockId: string | null;
   isOpen: boolean;
   onClose: () => void;
+  blockId: string;
+  mode?: "create" | "edit";
+  initialTask?: { id: string; name: string; duration: number } | null;
 }
 
-export const TaskModal = ({ blockId, isOpen, onClose }: TaskModalProps) => {
+export const TaskModal = ({
+  blockId,
+  isOpen,
+  onClose,
+  mode = "create",
+  initialTask = null,
+}: TaskModalProps) => {
   const { dispatch } = useBlock();
+
   const [name, setName] = useState("");
   const [duration, setDuration] = useState("");
-  const notify = () => toast("Task added!");
 
-  if (!isOpen || !blockId) return null;
+  useEffect(() => {
+    if (!isOpen) return;
+
+    if (mode === 'edit' && initialTask) {
+      setName(initialTask.name);
+      setDuration(String(initialTask.duration));
+    } else {
+      setName("");
+      setDuration("");
+    }
+  }, [isOpen, mode, initialTask]);
 
   const handleSubmit = () => {
     if (!name.trim() || !duration) return;
+
+    if (mode === 'edit' && initialTask) {
+      dispatch({
+        type: "UPDATE_TASK",
+        payload: {
+          blockId,
+          taskId: initialTask.id,
+          data: {
+            name,
+            duration: Number(duration),
+            remaining: Number(duration) * 60,
+          },
+        },
+      });
+      toast("Task updated!");
+      onClose();
+      return;
+    }
 
     dispatch({
       type: "ADD_TASK_TO_BLOCK",
@@ -38,16 +74,21 @@ export const TaskModal = ({ blockId, isOpen, onClose }: TaskModalProps) => {
       },
     });
 
-    notify();
+    toast("Task added!");
     setName("");
     setDuration("");
 
     onClose();
   };
+
+  if (!isOpen) return null;
+
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
       <div className="bg-white p-4 rounded-xl w-full max-w-md shadow-lg">
-        <h2 className="text-xl font-semibold mb-4">Add Task</h2>
+        <h2 className="text-xl font-semibold mb-4">
+          {mode === "edit" ? "Edit Task" : "Add Task"}
+        </h2>
 
         <div className="space-y-4">
           <div className="flex justify-between w-full gap-4">
@@ -81,7 +122,7 @@ export const TaskModal = ({ blockId, isOpen, onClose }: TaskModalProps) => {
               variant="primary"
               onClick={handleSubmit}
             >
-              Add Task
+              {mode === "edit" ? "Save" : "Add Task"}
             </Button>
           </div>
         </div>
