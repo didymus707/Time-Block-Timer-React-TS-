@@ -7,23 +7,30 @@ import { Add, Cancel, Check, Delete, Edit } from "../primitives/icons";
 interface BlockFormProps {
   mode?: "create" | "edit";
   closeForm: () => void;
-  intitalBlock?: Block | null
+  initialBlock?: Block | null;
   addBlock: (newBlock: Block) => void;
-  updateBlock?: (payload: {id: string, data: Partial<Block>}) => void;
+  updateBlock?: (payload: { id: string } & Partial<Block>) => void;
 }
 
 export const BlockForm: React.FC<BlockFormProps> = ({
+  mode = "create",
+  initialBlock = null,
+  updateBlock,
   addBlock,
   closeForm,
 }: BlockFormProps) => {
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [tasks, setTasks] = useState<Task[]>(initialBlock?.tasks ?? []);
   const [showTask, setShowTask] = useState<boolean>(true);
-  const [sessionName, setSessionName] = useState<string | undefined>("");
-  const [sessionHours, setSessionHours] = useState<string | undefined>(
-    undefined,
+  const [sessionName, setSessionName] = useState<string>(
+    initialBlock?.name ?? "",
   );
-  const [sessionMinutes, setSessionMinutes] = useState<string | undefined>(
-    undefined,
+
+  const initialPlanned = initialBlock?.plannedDuration ?? 0;
+  const [sessionHours, setSessionHours] = useState<string>(
+    mode === "edit" ? String(Math.floor(initialPlanned / 60)) : "",
+  );
+  const [sessionMinutes, setSessionMinutes] = useState<string>(
+    mode === "edit" ? String(Math.floor(initialPlanned % 60)) : "",
   );
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
 
@@ -60,8 +67,27 @@ export const BlockForm: React.FC<BlockFormProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Logic to handle form submission
 
+    // edit mode
+    if (mode === "edit" && initialBlock && updateBlock) {
+      const normalizedTasks = tasks.map((task) => ({
+        ...task,
+        duration: Number(task.duration),
+        remaining: task.remaining ?? Number(task.duration) * 60,
+      }));
+
+      updateBlock({
+        id: initialBlock.id,
+        name: sessionName || "Untitled Block",
+        plannedDuration: totalDuration,
+        tasks: normalizedTasks,
+      });
+
+      closeForm();
+      return;
+    }
+
+    // create mode
     const blockId = crypto.randomUUID();
 
     const tasksWithBlockId = tasks.map((task) => ({
@@ -83,6 +109,7 @@ export const BlockForm: React.FC<BlockFormProps> = ({
       status: "idle",
       createdAt: new Date().toISOString(),
       pauses: [],
+      activeTaskId: tasksWithBlockId[0]?.id ?? null,
     };
 
     addBlock(newBlock);
@@ -92,6 +119,7 @@ export const BlockForm: React.FC<BlockFormProps> = ({
     setSessionMinutes("");
     setTasks([]);
     setShowTask(false);
+    closeForm();
   };
 
   return (
@@ -104,7 +132,11 @@ export const BlockForm: React.FC<BlockFormProps> = ({
           <div className="form-header my-4">
             <div className="flex rounded-lg items-center" onClick={() => {}}>
               <Add size="1.4em" color={"black"} classNames={["mr-4"]} />
-              <p className="text-xl">Create Your First Time Block</p>
+              <p className="text-xl">
+                {mode === "edit"
+                  ? "Edit Time Block"
+                  : "Create Your First Time Block"}
+              </p>
             </div>
           </div>
 
@@ -311,7 +343,7 @@ export const BlockForm: React.FC<BlockFormProps> = ({
                   disabled={!sessionName || (!sessionHours && !sessionMinutes)}
                   className="create-session-btn bg-black text-white text-md p-2 rounded-lg w-[73%] disabled:bg-gray-300 disabled:text-white disabled:cursor-not-allowed"
                 >
-                  Create Session
+                  {mode === "edit" ? "Save Changes" : "Create Session"}
                 </button>
                 <button
                   onClick={closeForm}
