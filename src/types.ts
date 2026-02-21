@@ -62,7 +62,10 @@ export interface BlockContextType {
 
 export interface BlockUIContextType {
   isModalOpen: boolean;
-  openModal: () => void;
+  mode: " create" | "edit";
+  editingBlockId: string | null;
+  openCreateModal: () => void;
+  openEditModal: (blockId: string) => void;
   closeModal: () => void;
 }
 

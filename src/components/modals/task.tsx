@@ -7,7 +7,7 @@ import { ToastContainer, toast } from "react-toastify";
 interface TaskModalProps {
   isOpen: boolean;
   onClose: () => void;
-  blockId: string;
+  blockId: string | null;
   mode?: "create" | "edit";
   initialTask?: { id: string; name: string; duration: number } | null;
 }
@@ -36,6 +36,9 @@ export const TaskModal = ({
     }
   }, [isOpen, mode, initialTask]);
 
+  if (!isOpen || !blockId) return null;
+  const resolvedBlockId = blockId;
+
   const handleSubmit = () => {
     if (!name.trim() || !duration) return;
 
@@ -43,7 +46,7 @@ export const TaskModal = ({
       dispatch({
         type: "UPDATE_TASK",
         payload: {
-          blockId,
+          blockId: resolvedBlockId,
           taskId: initialTask.id,
           data: {
             name,
@@ -63,7 +66,7 @@ export const TaskModal = ({
         blockId,
         task: {
           id: crypto.randomUUID(),
-          blockId,
+          blockId: resolvedBlockId,
           name,
           elapsed: 0,
           progress: 0,
@@ -75,13 +78,8 @@ export const TaskModal = ({
     });
 
     toast("Task added!");
-    setName("");
-    setDuration("");
-
     onClose();
   };
-
-  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">

@@ -24,7 +24,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ setTasks }) => {
       elapsed: 0,
       progress: 0,
       duration: Number(taskDuration),
-      remaining: Number(taskDuration),
+      remaining: Number(taskDuration) * 60,
     };
     setTasks((prevTasks) => [...prevTasks, newTask]);
     setTaskValue("");

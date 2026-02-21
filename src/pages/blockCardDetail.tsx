@@ -17,6 +17,7 @@ export const CardDetails = () => {
   const { blocks, dispatch } = useBlock();
   const { id } = useParams<{ id: string }>();
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
   const [isFocusMode, setIsFocusMode] = useState<boolean>(false);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const {

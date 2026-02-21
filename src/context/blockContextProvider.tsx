@@ -13,7 +13,7 @@ export const BlockProvider = ({ children }: { children: ReactNode }) => {
   const [blocks, dispatch] = useReducer(
     blockReducer,
     initialState,
-    loadStoredData
+    loadStoredData,
   );
 
   useEffect(() => {
@@ -29,8 +29,14 @@ export const BlockProvider = ({ children }: { children: ReactNode }) => {
 
 export const BlockUIProvider = ({ children }: { children: ReactNode }) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [mode, setMode] = useState<'create' | 'edit'>('create');
+  const [editingBlockId, setEditingBlockId] = useState<string | null>(null);
 
-  const openModal = () => setIsModalOpen(true);
+  const openCreateModal = () => {
+    setMode("create");
+    setEditingBlockId(null);
+    setIsModalOpen(true);
+  };
   const closeModal = () => setIsModalOpen(false);
 
   return (
