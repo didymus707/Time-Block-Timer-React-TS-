@@ -29,7 +29,7 @@ export const BlockProvider = ({ children }: { children: ReactNode }) => {
 
 export const BlockUIProvider = ({ children }: { children: ReactNode }) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [mode, setMode] = useState<'create' | 'edit'>('create');
+  const [mode, setMode] = useState<"create" | "edit">("create");
   const [editingBlockId, setEditingBlockId] = useState<string | null>(null);
 
   const openCreateModal = () => {
@@ -37,13 +37,23 @@ export const BlockUIProvider = ({ children }: { children: ReactNode }) => {
     setEditingBlockId(null);
     setIsModalOpen(true);
   };
+
+  const openEditModal = (blockId: string) => {
+    setMode("edit");
+    setEditingBlockId(blockId);
+    setIsModalOpen(true);
+  };
+
   const closeModal = () => setIsModalOpen(false);
 
   return (
     <BlockUIContext.Provider
       value={{
         isModalOpen,
-        openModal,
+        mode,
+        editingBlockId,
+        openCreateModal,
+        openEditModal,
         closeModal,
       }}
     >
