@@ -18,7 +18,7 @@ export const BlockProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     localStorage.setItem("blocks", JSON.stringify(blocks));
-  });
+  }, [blocks]);
 
   return (
     <BlockContext.Provider value={{ blocks, dispatch } as BlockContextType}>
@@ -44,7 +44,11 @@ export const BlockUIProvider = ({ children }: { children: ReactNode }) => {
     setIsModalOpen(true);
   };
 
-  const closeModal = () => setIsModalOpen(false);
+  const closeModal = () => {
+    setMode("create");
+    setIsModalOpen(false);
+    setEditingBlockId(null);
+  };
 
   return (
     <BlockUIContext.Provider
