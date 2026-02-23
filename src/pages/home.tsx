@@ -4,7 +4,7 @@ import { useBlock, useBlockUI } from "../context/blockContext";
 
 export const Home = () => {
   const { blocks } = useBlock();
-  const { openModal } = useBlockUI();
+  const { openCreateModal } = useBlockUI();
 
   return (
     <>
@@ -24,7 +24,7 @@ export const Home = () => {
                 (90min)
               </p>
               <button
-                onClick={openModal}
+                onClick={openCreateModal}
                 className="mt-4 px-4 py-2 bg-black hover:bg-gray-800 rounded-lg text-white"
               >
                 Create Block

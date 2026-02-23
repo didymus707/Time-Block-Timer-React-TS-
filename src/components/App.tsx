@@ -8,7 +8,7 @@ import { useBlock, useBlockUI } from "../context/blockContext";
 function App() {
   const { dispatch } = useBlock();
   const notify = () => toast("Block added!");
-  const { isModalOpen, openModal, closeModal } = useBlockUI();
+  const { isModalOpen, openCreateModal, closeModal } = useBlockUI();
 
   const handleAddingBlock = (newBlock: Block) => {
     dispatch({ type: "ADD_BLOCK", payload: newBlock });
@@ -26,7 +26,7 @@ function App() {
             </Link>
           </h1>
           <button
-            onClick={openModal}
+            onClick={openCreateModal}
             className="flex items-center px-4 py-2 bg-black hover:bg-gray-800 rounded-lg text-white font-medium transition"
           >
             <Add size="1.2em" classNames={["mr-4"]} />
