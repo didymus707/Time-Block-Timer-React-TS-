@@ -6,13 +6,22 @@ import { ToastContainer, toast } from "react-toastify";
 import { useBlock, useBlockUI } from "../context/blockContext";
 
 function App() {
-  const { dispatch } = useBlock();
+  const { blocks, dispatch } = useBlock();
   const notify = () => toast("Block added!");
-  const { isModalOpen, openCreateModal, closeModal } = useBlockUI();
+  const { isModalOpen, mode, editingBlockId, openCreateModal, closeModal } =
+    useBlockUI();
+
+  const blockBeingEditied = blocks.find((b) => b.id === editingBlockId) ?? null;
 
   const handleAddingBlock = (newBlock: Block) => {
     dispatch({ type: "ADD_BLOCK", payload: newBlock });
     notify();
+    closeModal();
+  };
+
+  const handleUpdateBlock = (payload: { id: string } & Partial<Block>) => {
+    dispatch({ type: "UPDATE_BLOCK", payload });
+    toast("Block Updated!");
     closeModal();
   };
 
@@ -35,7 +44,13 @@ function App() {
         </header>
 
         {isModalOpen && (
-          <BlockForm addBlock={handleAddingBlock} closeForm={closeModal} />
+          <BlockForm
+            mode={mode}
+            closeForm={closeModal}
+            addBlock={handleAddingBlock}
+            updateBlock={handleUpdateBlock}
+            initialBlock={blockBeingEditied}
+          />
         )}
 
         {/* 👇 Nested routes render here (Home or CardDetails) */}
